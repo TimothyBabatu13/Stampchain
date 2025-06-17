@@ -9,19 +9,6 @@ import Link from "next/link"
 export default function CampaignSuccess() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              LaaS
-            </span>
-          </Link>
-        </div>
-      </header>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
@@ -107,8 +94,8 @@ export default function CampaignSuccess() {
         {/* Additional Actions */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>What's Next?</CardTitle>
-            <CardDescription>Here are some recommended next steps to maximize your campaign's success</CardDescription>
+            <CardTitle>What&apos;s Next?</CardTitle>
+            <CardDescription>Here are some recommended next steps to maximize your campaign&apos;s success</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

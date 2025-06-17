@@ -19,7 +19,7 @@ export default function ClaimPage() {
   const [walletAddress, setWalletAddress] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [campaignData, setCampaignData] = useState<any>(null)
+  const [campaignData, setCampaignData] = useState<null | typeof mockCampaignData>(null)
 
   // Mock campaign data - in real app this would come from API
   const mockCampaignData = {
@@ -75,22 +75,6 @@ export default function ClaimPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              LaaS
-            </span>
-          </Link>
-          <Badge variant="outline" className="hidden sm:inline-flex">
-            Claim Rewards
-          </Badge>
-        </div>
-      </header>
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Progress Indicator */}

@@ -1,5 +1,3 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,45 +7,6 @@ import Link from "next/link"
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              LaaS
-            </span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Features
-            </Link>
-            <Link href="#use-cases" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Use Cases
-            </Link>
-            <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">
-              Dashboard
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/admin">
-              <Button variant="outline" className="hidden sm:inline-flex">
-                Admin Panel
-              </Button>
-            </Link>
-            <Link href="/admin/campaign/new">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Get Started
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center max-w-4xl mx-auto">
           <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">🧠 Loyalty-as-a-Service</Badge>
@@ -83,7 +42,7 @@ export default function LandingPage() {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need for Digital Loyalty</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            From QR code generation to wallet integration, we've built all the tools you need to launch successful
+            From QR code generation to wallet integration, we&apos;ve built all the tools you need to launch successful
             loyalty campaigns.
           </p>
         </div>
@@ -270,31 +229,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                LaaS
-              </span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-gray-600">
-              <span>© 2024 Loyalty-as-a-Service</span>
-              <Link href="/privacy" className="hover:text-gray-900 transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="hover:text-gray-900 transition-colors">
-                Terms
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

@@ -47,7 +47,11 @@ export default function QRGenerator() {
     setTimeout(() => setCopiedToken(""), 2000)
   }
 
-  const downloadQRCode = (qrCode: any) => {
+  const downloadQRCode = (qrCode: {
+    id: string;
+    url: string; 
+    token: string; 
+  }) => {
     // In a real app, this would generate and download the actual QR code image
     console.log("Downloading QR code:", qrCode)
   }
@@ -171,7 +175,7 @@ export default function QRGenerator() {
                   <div className="text-center text-gray-500">
                     <QrCode className="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <h3 className="text-lg font-medium mb-2">No QR Codes Generated</h3>
-                    <p className="text-sm">Select a campaign and click "Generate QR Codes" to get started</p>
+                    <p className="text-sm">Select a campaign and click &quot;Generate QR Codes&quot; to get started</p>
                   </div>
                 </CardContent>
               </Card>
