@@ -1,5 +1,5 @@
 'use client';
-import { Activity, ArrowLeft, ArrowRight, Plus, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowRight, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "./ui/button"
 import { usePathname } from "next/navigation";
