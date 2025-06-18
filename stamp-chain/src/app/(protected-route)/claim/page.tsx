@@ -7,9 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { QrCode, Wallet, CheckCircle, AlertCircle, Coins, Sparkles, ArrowRight, Camera, Loader2 } from "lucide-react"
+import { QrCode, Wallet, CheckCircle, AlertCircle, Coins, ArrowRight, Camera, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function ClaimPage() {

@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Sparkles, Shield, Zap, Users } from "lucide-react"
 import Link from "next/link"
 import GoogleSignInBtn from "./google-btn"

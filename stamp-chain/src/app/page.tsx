@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Zap, Shield, Users, QrCode, Coins, BarChart3, Sparkles } from "lucide-react"
+import { ArrowRight, Zap, QrCode } from "lucide-react"
 import Link from "next/link"
+import { Business,  Features } from "@/components/Features"
 
-export default function LandingPage() {
+export default function LandingPage () {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <section className="container mx-auto px-4 py-16 md:py-24">
@@ -47,79 +47,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mb-4">
-                <Coins className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>Custom Tokens</CardTitle>
-              <CardDescription>
-                Create your own ERC-20 loyalty tokens with built-in supply caps and security features.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
-                <QrCode className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>QR Code Generation</CardTitle>
-              <CardDescription>
-                Generate unique, secure QR codes for campaigns with one-time use protection and expiration dates.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>Fraud Prevention</CardTitle>
-              <CardDescription>
-                Built-in protection against double claims, wallet limits, and QR code abuse.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center mb-4">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>Multi-Wallet Support</CardTitle>
-              <CardDescription>
-                Connect with MetaMask, Phantom, WalletConnect, and other popular wallet providers.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-500 rounded-lg flex items-center justify-center mb-4">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>Analytics Dashboard</CardTitle>
-              <CardDescription>
-                Track claims, monitor campaign performance, and analyze user engagement in real-time.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardHeader>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-500 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle>Instant Deployment</CardTitle>
-              <CardDescription>
-                Launch your loyalty program in minutes, not weeks. No coding or blockchain knowledge required.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
+        <Features />
       </section>
 
       {/* Use Cases Section */}
@@ -131,77 +59,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">☕ Local Businesses</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Replace punch cards with digital rewards. Customers scan QR codes on receipts to earn loyalty tokens.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">🎥 Content Creators</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Reward your most engaged fans with exclusive tokens for likes, shares, and event attendance.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">🏛️ DAOs & Communities</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Distribute governance tokens and POAP-style rewards for community participation and events.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">🛍️ E-commerce Brands</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Integrate with Shopify to automatically reward customers with tokens after purchases.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">🎪 Event Organizers</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Create memorable experiences with claimable tokens for attendees at conferences and meetups.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="p-6 border-0 shadow-lg">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-lg">💻 Developers & Agencies</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <p className="text-gray-600">
-                  Offer branded loyalty solutions as a service to your clients with our white-label platform.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        <Business />
       </section>
 
       {/* CTA Section */}
