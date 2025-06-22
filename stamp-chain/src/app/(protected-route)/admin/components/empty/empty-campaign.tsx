@@ -3,7 +3,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { PlayCircle, Plus, Target } from "lucide-react"
+import { Plus, Target } from "lucide-react"
 import Link from "next/link"
 
 // import { Button } from "@/components/ui/button"
@@ -272,10 +272,6 @@ const EmptyCampaing = () => {
                             Create Your First Campaign
                         </Button>
                     </Link>
-                    <Button variant="outline">
-                      <PlayCircle className="w-4 h-4 mr-2" />
-                      Watch Tutorial
-                    </Button>
                 </div>
             </div>
         </CardContent>

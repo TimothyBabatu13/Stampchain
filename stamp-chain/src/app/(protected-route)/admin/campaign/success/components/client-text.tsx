@@ -4,9 +4,11 @@ import { formatNumber } from "@/lib/format-number";
 import { useFormStore } from "@/stores/formStore";
 
 export const TotalSupply = () => {
-    const cofeeSupply = formatNumber(useFormStore(s => Number(s.form.totalSupply)));
+
+    const tokenSupply = formatNumber(useFormStore(s => Number(s.form.totalSupply)));
+    const symbol = useFormStore(s => s.form.tokenSymbol)
   return (
-    <div className="text-2xl font-bold text-blue-600 mb-1">{cofeeSupply} COFFEE</div>
+    <div className="text-2xl font-bold text-blue-600 mb-1">{tokenSupply} {symbol}</div>
   )
 }
 

@@ -1,14 +1,14 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Coins, QrCode, Target, TrendingUp, Users } from "lucide-react"
+import { Coins, QrCode, Target, TrendingDown, TrendingUp, Users } from "lucide-react"
 // import { Wallet } from '@coinbase/onchainkit/wallet';
 const stats = [
     {
       title: "Total Campaigns",
       value: "12",
-      change: "+2 this month",
+      change: "-2 this month",
       icon: Target,
-      trend: "up",
+      trend: "down",
     },
     {
       title: "Tokens Distributed",
@@ -35,6 +35,7 @@ const stats = [
 
 
 const Stats = () => {
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
@@ -45,10 +46,19 @@ const Stats = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-green-600 flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" />
-                  {stat.change}
-                </p>
+                {
+                  stat.trend === 'up' ? (
+                    <p className="text-xs text-green-600 flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      {stat.change}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-red-600 flex items-center gap-1">
+                      <TrendingDown className="h-3 w-3" />
+                      {stat.change}
+                    </p>
+                  )
+                }
               </CardContent>
             </Card>
           ))}

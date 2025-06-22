@@ -9,10 +9,7 @@ import { Coins } from "lucide-react";
 
 const TokenForm = () => {
 
-  const totalSupply = useFormStore(e => e.form.totalSupply);
-  const tokensPerClaim = useFormStore(e => e.form.tokensPerClaim);
-  const maxClaimsPerWallet = useFormStore(e =>  e.form.maxClaimsPerWallet);
-  const blockchain = useFormStore(e => e.form.blockchain);
+  const { totalSupply, tokensPerClaim, maxClaimsPerWallet, blockchain } = useFormStore(e => e.form);
   const setForm = useFormStore(e => e.setForm);
 
   return (

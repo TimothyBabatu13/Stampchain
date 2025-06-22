@@ -9,8 +9,7 @@ import { Shield } from "lucide-react";
 
 const ExpiryForm = () => {
 
-    const expirationDate = useFormStore(e => e.form.expirationDate);
-    const enableExpiration = useFormStore(e => e.form.enableExpiration);
+    const { expirationDate, enableExpiration } = useFormStore(e => e.form);
     const setForm = useFormStore(e => e.setForm);
 
   return (

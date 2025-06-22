@@ -8,9 +8,7 @@ import { Target } from "lucide-react"
 
 const CampaignForm = () => {
 
-  const name = useFormStore(s => s.form.name);
-  const description = useFormStore(s => s.form.description);
-  const tokenSymbol = useFormStore(s => s.form.tokenSymbol);
+  const { name, description, tokenSymbol,  } = useFormStore(s => s.form);
   const setForm = useFormStore(s => s.setForm);
 
   return (

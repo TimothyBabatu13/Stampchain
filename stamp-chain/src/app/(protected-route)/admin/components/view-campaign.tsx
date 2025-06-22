@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Progress } from "@/components/ui/progress"
-import { Download, Eye, MoreHorizontal, Plus, QrCode, } from "lucide-react"
+import {  Eye, MoreHorizontal, Plus,  } from "lucide-react"
 import Link from "next/link"
 import EmptyCampaing from "./empty/empty-campaign"
+import { ExportData, GenerateQrCodes } from "./view-campaign-right";
 
 const campaigns = [
     {
@@ -35,12 +36,21 @@ const campaigns = [
       qrCodes: 5,
       createdAt: "2024-01-05",
     },
+    {
+      id: 4,
+      name: "Conference Attendance Tokens",
+      status: "completed",
+      totalSupply: 500,
+      claimed: 500,
+      qrCodes: 0,
+      createdAt: "2024-01-05",
+    },
   ]
 
   
 const Campaign = () => {
 
-    const isEmpty = true
+    const isEmpty = false
 
   return (
     <>
@@ -89,18 +99,22 @@ const Campaign = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
+                          <DropdownMenuItem asChild>
+                            <Link href={`/admin/campaign/${campaign.id}`} className="">
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <QrCode className="w-4 h-4 mr-2" />
-                            Generate QR Codes
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="w-4 h-4 mr-2" />
-                            Export Data
-                          </DropdownMenuItem>
+                          <GenerateQrCodes 
+                            claimed={campaign.claimed}
+                            createdAt={campaign.createdAt}
+                            id={campaign.id.toString()}
+                            name={campaign.name}
+                            qrCodes={campaign.qrCodes}
+                            status={campaign.status as 'active' | 'completed'}
+                            totalSupply={campaign.totalSupply}  
+                          />
+                          <ExportData />
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -119,7 +133,7 @@ const Campaign = () => {
                       </div>
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <div className="text-2xl font-bold text-green-600">{campaign.qrCodes}</div>
-                        <div className="text-sm text-gray-600">QR Codes</div>
+                        <div className="text-sm text-gray-600">{campaign.qrCodes ? "QR Codes": "QR Code"}</div>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -133,11 +147,10 @@ const Campaign = () => {
                 </Card>
               ))}
             </div>
-</div>
-            )
-        }
+          </div>
+        )
+      }
     </>
-    
   )
 }
 

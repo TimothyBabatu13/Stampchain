@@ -23,10 +23,10 @@ const Footer = () => {
             </div>
             <div className="flex items-center gap-6 text-sm text-gray-600">
               <span>© 2024 Loyalty-as-a-Service</span>
-              <Link href="/privacy" className="hover:text-gray-900 transition-colors">
+              <Link prefetch={false} href="/privacy" className="hover:text-gray-900 transition-colors">
                 Privacy
               </Link>
-              <Link href="/terms" className="hover:text-gray-900 transition-colors">
+              <Link prefetch={false} href="/terms" className="hover:text-gray-900 transition-colors">
                 Terms
               </Link>
             </div>
