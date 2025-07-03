@@ -3,7 +3,9 @@ import { NextResponse } from "next/server"
 
 export const GET = async () => {
     const supabase = createClient();
-    const { data, error } = await supabase.from('users').select('*')
+
+    const { error, data } = await supabase.from('token_mints').select('*');
+    // const { data, error } = await supabase.from('users').select('*')
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 })
       }

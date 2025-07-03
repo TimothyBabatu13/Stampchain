@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NextAuthProvider from "@/context/NextAuthProvider";
 import Wallets from "@/wallets/wallets";
+import { Toaster } from "@/components/ui/sonner";
 
 
 const geistSans = Geist({
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Footer />
+            <Toaster />
           </NextAuthProvider>
         </Wallets>
       </body>

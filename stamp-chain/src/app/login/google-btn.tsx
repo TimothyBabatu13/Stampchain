@@ -34,7 +34,6 @@ const GoogleSignInBtn = () => {
       await signIn("google", { redirect: false});
     } catch (error) {
       console.log(error)
-    
     }
   }
 
