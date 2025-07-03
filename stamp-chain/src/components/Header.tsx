@@ -30,12 +30,29 @@ const Logo = () => (
 </Link>
 )
 
+// const HeaderComponent = ({path} : {
+//   path: '/login' | '/'
+// }) => {
+//   const render = () => {
+//     switch (path) {
+//       case path = '/login':
+//         return <h1>This is for login</h1>
+//       case path = '/':
+//         return <h1>This is for others</h1>
+//       default:
+//         return null
+//     }
+//   }
+//   return <>{render()}</>
+// }
+
 const Header = () => {
   
     const { status } = useSession()
 
     const path = usePathname();
 
+    // return <HeaderComponent path="/login" />
     if (path === '/login') {
         return (
             <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">

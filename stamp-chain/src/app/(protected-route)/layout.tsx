@@ -1,4 +1,3 @@
-import Wallets from "@/wallets/wallets";
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation";
 
@@ -10,9 +9,9 @@ const layout = async ({ children } : {
         redirect('/')
     }
   return (
-    <Wallets>
-        {children}
-    </Wallets>
+    <div>
+      {children}
+    </div>
   )
 }
 

@@ -4,6 +4,10 @@ interface LaunchTokenType {
     network: tokenNetwork
 }
 
+export const CheckIfSpecifiedWalletIsConnected = () => {
+    
+}
+
 export const LaunchToken = ({ network } : LaunchTokenType) => {
     switch (network) {
         case 'solana':

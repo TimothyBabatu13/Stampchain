@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Zap, QrCode } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Business,  Features } from "@/components/Features"
+import { ClaimLink, CreateCampaignLink } from "@/components/server-components/Links"
+import { Suspense } from "react"
 
-export default function LandingPage () {
+const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <section className="container mx-auto px-4 py-16 md:py-24">
@@ -18,21 +20,12 @@ export default function LandingPage () {
             reward your community with blockchain-powered loyalty tokens.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/admin/campaign/new">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                <Zap className="w-5 h-5 mr-2" />
-                Create Campaign
-              </Button>
-            </Link>
-            <Link href="/claim">
-              <Button size="lg" variant="outline">
-                <QrCode className="w-5 h-5 mr-2" />
-                Claim Rewards
-              </Button>
-            </Link>
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <CreateCampaignLink />
+            </Suspense>
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <ClaimLink />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -90,3 +83,5 @@ export default function LandingPage () {
     </div>
   )
 }
+
+export default LandingPage;

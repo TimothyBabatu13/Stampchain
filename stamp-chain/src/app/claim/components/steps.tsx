@@ -1,8 +1,10 @@
 'use client';
 import { useClaimStore } from "@/stores/claimStore"
+import { useWalletStore } from "@/stores/walletStore";
 
 export const Steps = () => {
     const step = useClaimStore(s => s.step)
+    const { wallet } = useWalletStore();
     
     return(
         <div className="mb-8">
@@ -34,12 +36,12 @@ export const Steps = () => {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">
               {step === 1 && "Enter Claim Token"}
-              {step === 2 && "Connect Your Wallet"}
+              {step === 2 && wallet ? "Claim to your wallet" : "Connect Your Wallet"}
               {step === 3 && "Claim Successful!"}
             </h1>
             <p className="text-gray-600">
               {step === 1 && "Scan the QR code or enter your claim token to get started"}
-              {step === 2 && "Connect your wallet to receive your loyalty tokens"}
+              {step === 2 && wallet ? "Claim your loyalty tokens to your wallet" : "Connect your wallet to receive your loyalty tokens"}
               {step === 3 && "Your tokens have been successfully claimed!"}
             </p>
           </div>

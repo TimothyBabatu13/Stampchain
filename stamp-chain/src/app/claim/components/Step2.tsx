@@ -4,33 +4,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useClaimStore } from "@/stores/claimStore"
 import { useLoadingStore } from "@/stores/loadingStore"
 import { useWalletStore } from "@/stores/walletStore"
+import { WalletName } from "@solana/wallet-adapter-base"
+import { useWallet } from "@solana/wallet-adapter-react"
 import { CheckCircle, Coins, Loader2, Wallet } from "lucide-react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 const Step2 = () => {
     
     const { claimData, setStep} = useClaimStore();
-    const { wallet: wallets, walletAddress, setWallet, setWalletAddress } = useWalletStore();
+    const { wallet: wallets, walletAddress } = useWalletStore();
+    const { wallet, wallets: useWalletWallet, connect, select } = useWallet()
     const { setIsLoading, loading: isLoading } = useLoadingStore();
-    const [error, setError] = useState("")
-    
-    const walletConnected = wallets ? true : false
 
+    const [show, setShow] = useState(false)
+    const walletConnected = wallets ? true : false
+    
     const handleWalletConnect = async () => {
-        setIsLoading(true)
-        console.log(error)
-        setError("")
-        // Simulate wallet connection
-        setTimeout(() => {
-            setWallet('solana');
-            setWalletAddress("0x1234...5678")
-            setIsLoading(false)
-        }, 1500)
+      setIsLoading(true)
+      setShow(true)
+      
     }
+    const handleConnectWallet = useCallback((name: string)=>{
+      const run = async () => {
+          select(name as WalletName);
+          await connect();
+          setShow(false);
+          setIsLoading(false)
+      }
+      run();
+    }, [wallet, useWalletWallet]) 
         
     const handleClaim = async () => {
         setIsLoading(true)
-        setError("")
         // Simulate claiming tokens
         setTimeout(() => {
             setStep(3)
@@ -40,6 +45,20 @@ const Step2 = () => {
 
   return (
     <div className="space-y-6">
+      {
+        show && <div className=" fixed h-[50vh] w-[80vw] bg-red-200 z-20">
+          Showing ..
+          {
+            useWalletWallet.map(i => (
+              <Button key={crypto.randomUUID()} onClick={()=>handleConnectWallet(i.adapter.name)}>
+                {
+                  i.adapter.name
+                }
+              </Button>
+            ))
+          }
+        </div>
+      }
             {/* Campaign Info */}
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-purple-50">
               <CardHeader className="text-center">
@@ -61,13 +80,13 @@ const Step2 = () => {
 
             {/* Wallet Connection */}
             <Card className="border-0 shadow-lg">
-              <CardHeader className="text-center">
+              {!walletConnected && <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Wallet className="w-8 h-8 text-white" />
                 </div>
                 <CardTitle>Connect Your Wallet</CardTitle>
                 <CardDescription>Connect your crypto wallet to receive your loyalty tokens</CardDescription>
-              </CardHeader>
+              </CardHeader>}
               <CardContent>
                 {!walletConnected ? (
                   <div className="space-y-3">
@@ -84,13 +103,9 @@ const Step2 = () => {
                       ) : (
                         <>
                           <Wallet className="w-4 h-4 mr-2" />
-                          Connect MetaMask
+                          Connect Wallet
                         </>
                       )}
-                    </Button>
-                    <Button variant="outline" className="w-full" disabled>
-                      <Wallet className="w-4 h-4 mr-2" />
-                      Connect Phantom (Coming Soon)
                     </Button>
                   </div>
                 ) : (
@@ -125,3 +140,6 @@ const Step2 = () => {
 }
 
 export default Step2
+
+
+// https://www.youtube.com/watch?v=vHFZFXtjKNE

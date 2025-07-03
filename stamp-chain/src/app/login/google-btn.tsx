@@ -1,19 +1,40 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { create_account_endpoint } from "../api-endpoints/api-endpoints";
+import { useRouter } from "next/navigation";
 
 const GoogleSignInBtn = () => {
-
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false)
+  const session = useSession();
 
+  useEffect(()=>{
+    const createAccount = async () => {
+      if(!session.data) return;
+      const user = session.data?.user;
+      const data = {
+        email: user?.email
+      }
+      const api = await fetch(create_account_endpoint, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+      const result: {url: string} = await api.json();
+      router.push(result.url)
+      setIsLoading(false)
+    }
+    createAccount();
+  }, [session])
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
-      await signIn("google", {callbackUrl: '/admin'});
+      await signIn("google", { redirect: false});
     } catch (error) {
       console.log(error)
+    
     }
   }
 
