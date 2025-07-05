@@ -47,7 +47,7 @@ export type TokenMint = {
   
 const Campaign = async () => {
   const session = await getServerSession()
-  const data = await fetchData(session?.user!.email!);
+  const data = await fetchData(session!.user!.email!);
   
   const changeToNumber = (val: string | number) => {
     if(typeof val === 'number') return val;
