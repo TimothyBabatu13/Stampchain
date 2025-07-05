@@ -5,12 +5,63 @@ import { Button } from "./ui/button";
 import { FormEvent } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
+import { showDetailedValidationErrors, showValidationErrors } from "@/lib/error-handler";
+import { useWalletStore } from "@/stores/walletStore";
+const object = {
+  "issues": [
+      {
+          "code": "too_small",
+          "minimum": 1,
+          "type": "string",
+          "inclusive": true,
+          "exact": false,
+          "message": "Token name cannot be empty",
+          "path": [
+              "name"
+          ]
+      },
+      {
+          "code": "too_small",
+          "minimum": 1,
+          "type": "string",
+          "inclusive": true,
+          "exact": false,
+          "message": "Token symbol cannot be empty",
+          "path": [
+              "tokenSymbol"
+          ]
+      },
+      {
+          "code": "too_small",
+          "minimum": 1,
+          "type": "string",
+          "inclusive": true,
+          "exact": false,
+          "message": "Token per claim cannot be empty",
+          "path": [
+              "tokensPerClaim"
+          ]
+      },
+      {
+          "code": "too_small",
+          "minimum": 1,
+          "type": "string",
+          "inclusive": true,
+          "exact": false,
+          "message": "Total supply must not be empty",
+          "path": [
+              "totalSupply"
+          ]
+      }
+  ],
+  "name": "ZodError"
+}
 
 const CreateTokenButton = () => {
 
-    const { publicKey, signTransaction } = useWallet()
+    const { publicKey, signTransaction, disconnect } = useWallet()
     const { form } = useFormStore();
-
+    const { setWallet } = useWalletStore()
     const handleCreateToken = async (e: FormEvent) => {
         e.preventDefault();
         console.log(publicKey?.toString())
@@ -30,8 +81,15 @@ const CreateTokenButton = () => {
               }),
             });
       
-            const { unsignedTx } = await res1.json();
+            const reee = await res1.json();
+            console.log(reee)
+            if(!reee.success){
+              showDetailedValidationErrors(reee.error)
+              return
+            }
+            const { unsignedTx } = reee;
       
+            console.log(unsignedTx)
             // Step 2: Convert base64 tx to Transaction object
             const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));
       
@@ -55,7 +113,16 @@ const CreateTokenButton = () => {
         };
     
 
+        const handleSonner = (e: FormEvent) => {
+          e.preventDefault();
+          showValidationErrors(object)
+        }
 
+        const handleDisconnect = async (e: FormEvent) => {
+          e.preventDefault()
+          await disconnect()
+          setWallet(null)
+        }
     
   return (
     <div>
@@ -64,6 +131,15 @@ const CreateTokenButton = () => {
         onClick={handleCreateToken}
     >
         Create TOken
+    </Button>
+
+<Button
+  onClick={handleDisconnect}
+>
+  Diconnect
+</Button>
+    <Button onClick={handleSonner}>
+      Sonner
     </Button>
 
     </div>
@@ -78,4 +154,6 @@ export default CreateTokenButton
 //     "mintPublicKey": "DCVtGzsozG3HAdH7pv5tvmLG4W9sYwqFMdsW5nCwUVsT",
 //     "data": null
 // }
+
+
 

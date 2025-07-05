@@ -2,10 +2,12 @@ import { clusterApiUrl, Connection, Transaction } from "@solana/web3.js"
 import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server"
 import { Buffer } from "buffer"
+import { createClient } from "@/config/supabase/supabase-server"
+
 export const POST = async (req: NextRequest) => {
 
     const session = await getServerSession();
-    console.log(session)
+
     if(!session){
         return NextResponse.json({
             success: false,
@@ -13,21 +15,28 @@ export const POST = async (req: NextRequest) => {
         })
     }
     
-    const { signedTx } = await req.json()
+    const { signedTx, mintPublicKey } = await req.json()
 
     const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
   
-    
-
     try {
-        const serializedTx = Buffer.from(signedTx, "base64")
-        const tx = Transaction.from(serializedTx)
-        const txid = await connection.sendRawTransaction(tx.serialize())
-        await connection.confirmTransaction(txid, "confirmed")
+        const tx = Transaction.from(Buffer.from(signedTx, 'base64'))
+        const signature = await connection.sendRawTransaction(tx.serialize())
+        await connection.confirmTransaction(signature)
+        const supabase = createClient();
+        const { data, error } = await supabase.from('token_mints').select('*').eq('mint_address', mintPublicKey).single()
+        
+        if(error){
+            return NextResponse.json({
+                success: false,
+                message: error.message 
+            })
+        }
         return NextResponse.json({
             success: true,
-            txid,
-            explorer: `https://explorer.solana.com/tx/${txid}?cluster=devnet`,
+            txid: signature,
+            explorer: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+            url: `/admin/campaign/success?id=${data.id}`
         })    
     } catch (error) {
         const err = error as Error

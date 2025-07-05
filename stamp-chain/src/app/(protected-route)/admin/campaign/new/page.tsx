@@ -6,7 +6,6 @@ import ExpiryForm from "./components/expiry-form"
 import SubmitButton from "./components/SubmitButton"
 import CampaignPreview from "./components/campaign-preview"
 import ConnectWallet from "@/components/connect-wallet"
-import CreateTokenButton from "@/components/create-token-btn"
 
 export default function NewCampaign() {
 
@@ -37,7 +36,6 @@ export default function NewCampaign() {
             </Link>
             <ConnectWallet />
             <SubmitButton />
-            <CreateTokenButton />
           </div>
         </form>
       </div>

@@ -24,9 +24,6 @@ const SolanaWallet = ({ children } : {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
         <WalletModalProvider>
-          {/* <WalletMultiButton >
-            Connect to wallet
-          </WalletMultiButton> */}
           <SolanHelperFunctions />
           {children}
         </WalletModalProvider>

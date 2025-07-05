@@ -4,8 +4,16 @@ import { CheckCircle, Coins, QrCode, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { AdditionalActionsCard, RedirectCards } from "./components/Cards"
 import CapaignSummary from "./components/campaign-summary"
+import { redirect } from "next/navigation"
 
-export default function CampaignSuccess() {
+const CampaignSuccess = async ({ searchParams }: { searchParams: Promise<{ id?: string }> }) => {
+  
+  const id = (await searchParams).id;
+
+  if(!id){
+    redirect('/admin')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
 
@@ -31,7 +39,7 @@ export default function CampaignSuccess() {
             </CardTitle>
             <CardDescription>Your newly created loyalty campaign details</CardDescription>
           </CardHeader>
-          <CapaignSummary />
+          <CapaignSummary id={id} />
         </Card>
 
         
@@ -62,3 +70,5 @@ export default function CampaignSuccess() {
     </div>
   )
 }
+
+export default CampaignSuccess;

@@ -8,112 +8,125 @@ import {
   clusterApiUrl,
 } from '@solana/web3.js'
 import {
-    createAssociatedTokenAccountInstruction,
-    createInitializeMintInstruction,
+  createAssociatedTokenAccountInstruction,
+  createInitializeMintInstruction,
   createMintToInstruction,
   getAssociatedTokenAddress,
+  getMinimumBalanceForRentExemptMint,
+  MINT_SIZE,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token'
+
 import { createCampaign } from "@/validations/create-campaign-validation";
 import { createClient } from '@/config/supabase/supabase-server';
 import { getServerSession } from 'next-auth';
 
-
-
 export const POST = async (req: NextRequest) => {
-    const body = await req.json();
-    const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
-    const mintAuthority = Keypair.generate();
-    const superbase = createClient();
-    const session = await getServerSession();
+  const session = await getServerSession();
+  if (!session) {
+    return NextResponse.json({
+      success: false,
+      data: 'You have to active'
+    })
+  }
+  const body = await req.json();
+  const validationResult = createCampaign.safeParse(body);
 
-    if(!session){
-        return NextResponse.json({
-            success: false,
-            data: 'You have to active'
-        })
-    }
-    const validationResult = createCampaign.safeParse(body);
+  if (!validationResult.success) {
+    return NextResponse.json({success: false, error:validationResult.error})
+  }
 
-    if(!validationResult.success){
-        return NextResponse.json(validationResult.error)
-    }
+  const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+  const mintAuthority = Keypair.generate();
+  const superbase = createClient();
+  
+  const { name, decimals, tokenSymbol, totalSupply, walletAddress, description, maxClaimsPerWallet, tokensPerClaim,  } = validationResult.data
 
-    const { name, decimals, tokenSymbol, totalSupply, walletAddress, description } = validationResult.data
+  try {
+
+    const userPubkey = new PublicKey(walletAddress);
+
+    const ata = await getAssociatedTokenAddress(
+      mintAuthority.publicKey,
+      userPubkey
+    )
+
     
-    try {
+    const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
-        const userPubkey = new PublicKey(walletAddress);
-        
-        const ata = await getAssociatedTokenAddress(
-            mintAuthority.publicKey,
-            userPubkey
-        )
+    const createAccountIx = SystemProgram.createAccount({
+      fromPubkey: userPubkey,
+      newAccountPubkey: mintAuthority.publicKey,
+      space: MINT_SIZE,
+      lamports,
+      programId: TOKEN_PROGRAM_ID
+    });
+  
+    const initMintIx = createInitializeMintInstruction(
+      mintAuthority.publicKey,
+      Number(decimals),
+      userPubkey, 
+      userPubkey,
+      TOKEN_PROGRAM_ID
+    );
+  
 
-        const tx = new Transaction()
-        const lamports = await connection.getMinimumBalanceForRentExemption(82)
-        tx.add(
-            SystemProgram.createAccount({
-              fromPubkey: userPubkey,
-              newAccountPubkey: mintAuthority.publicKey,
-              space: 82,
-              lamports,
-              programId: TOKEN_PROGRAM_ID,
-            }),
-            createInitializeMintInstruction(
-              mintAuthority.publicKey,
-              Number(decimals),
-              userPubkey,
-              null
-            ),
-            createAssociatedTokenAccountInstruction(
-              userPubkey,
-              ata,
-              userPubkey,
-              mintAuthority.publicKey
-            )
-          )
+    const createAtaIx = createAssociatedTokenAccountInstruction(
+      userPubkey,
+      ata,
+      userPubkey,
+      mintAuthority.publicKey
+    );
 
-          if (Number(totalSupply) > 0) {
-            tx.add(
-              createMintToInstruction(
-                mintAuthority.publicKey,
-                ata,
-                userPubkey,
-                BigInt(totalSupply)
-              )
-            )
-          }
+    const mintToIx = createMintToInstruction(
+      mintAuthority.publicKey,
+      ata,
+      userPubkey,
+      Number(totalSupply) * (10 ** Number(decimals)),
+      [],
+      TOKEN_PROGRAM_ID
+    );
+    
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    
+    const tx = new Transaction({
+      feePayer: userPubkey,blockhash,
+      lastValidBlockHeight
+    }).add(createAccountIx, initMintIx, createAtaIx, mintToIx);
 
-          tx.feePayer = userPubkey;
+  // Backend signs with mint key
+    tx.partialSign(mintAuthority);
+    
+    const { data, error } = await superbase.from('token_mints').insert({
+      mint_address: mintAuthority.publicKey.toBase58(),
+      mint_secret_key: Array.from(mintAuthority.secretKey),
+      creator_email: session.user?.email,
+      decimals: decimals,
+      name: name,
+      description,
+      symbol: tokenSymbol,
+      initial_supply: totalSupply,
+      maxClaimsPerWallet,
+      tokensPerClaim
+    })
+    
 
-          tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-          tx.partialSign(mintAuthority)
-          const { data, error } = await superbase.from('token_mints').insert({
-            mint_address: mintAuthority.publicKey.toBase58(),
-            mint_secret_key: Array.from(mintAuthority.secretKey),
-            creator_email: session.user?.email,
-            decimals: decimals,
-            name: name,
-            description,
-            symbol: tokenSymbol,
-            initial_supply: totalSupply
-          })
-
-          if(error){
-            console.log(error)
-          }
-          console.log(data)
-          return NextResponse.json({
-            unsignedTx: tx.serialize({
-              requireAllSignatures: false,
-              verifySignatures: false
-            }).toString('base64'),
-            mintPublicKey: mintAuthority.publicKey.toBase58(),
-            data
-          })
-    } catch (error) {
-        const err = error as Error
-        return NextResponse.json({ error: err.message }, { status: 500 })
+    if (error) {
+      console.log(error)
     }
+    console.log(data)
+    return NextResponse.json({
+      success: true,
+      unsignedTx: tx.serialize({
+        requireAllSignatures: false,
+      }).toString('base64'),
+      mintPublicKey: mintAuthority.publicKey.toBase58(),
+      data
+    })
+  } catch (error) {
+    const err = error as Error
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
 }
+
+
