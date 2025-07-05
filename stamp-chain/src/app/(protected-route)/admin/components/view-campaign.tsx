@@ -24,46 +24,6 @@ export type TokenMint = {
   tokensperclaim: string | number;
 };
 
-
-const campaigns = [
-    {
-      id: 1,
-      name: "Coffee Shop Loyalty",
-      status: "active",
-      totalSupply: 10000,
-      claimed: 2340,
-      qrCodes: 50,
-      createdAt: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "YouTube Subscriber Rewards",
-      status: "active",
-      totalSupply: 5000,
-      claimed: 1200,
-      qrCodes: 10,
-      createdAt: "2024-01-10",
-    },
-    {
-      id: 3,
-      name: "Conference Attendance Tokens",
-      status: "completed",
-      totalSupply: 500,
-      claimed: 500,
-      qrCodes: 5,
-      createdAt: "2024-01-05",
-    },
-    {
-      id: 4,
-      name: "Conference Attendance Tokens",
-      status: "completed",
-      totalSupply: 500,
-      claimed: 500,
-      qrCodes: 0,
-      createdAt: "2024-01-05",
-    },
-  ]
-
   const fetchData = async (email: string) => {
     const supabase = createClient();
     const { data, error } = await supabase.from('token_mints')
@@ -80,6 +40,7 @@ const campaigns = [
     tokensperclaim`)
     .eq('creator_email',email)
 
+    console.log(error)
     return data as Array<TokenMint>;
 
   }
@@ -101,7 +62,7 @@ const Campaign = async () => {
     qrCodes: 5,
     createdAt: campaign.created_at
   }))
-  const isEmpty = data.length < 1;
+  const isEmpty = campaigns.length < 1;
 
   return (
     <>
