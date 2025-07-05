@@ -3,8 +3,11 @@ import Campaign from "./components/view-campaign"
 import ViewAnalytics from "./components/view-analytics"
 import ViewSettings from "./components/view-settings"
 import Stats from "./components/stats"
+import { Suspense } from "react"
 
-export default function AdminDashboard() {
+const AdminDashboard =  () => {
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -21,7 +24,9 @@ export default function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="campaigns" className="space-y-6">
-            <Campaign />
+            <Suspense fallback={<h1>Loading...</h1>}>
+              <Campaign />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -36,3 +41,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+export default AdminDashboard

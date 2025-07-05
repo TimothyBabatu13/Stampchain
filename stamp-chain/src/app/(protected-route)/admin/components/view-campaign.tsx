@@ -7,6 +7,23 @@ import {  Eye, MoreHorizontal, Plus,  } from "lucide-react"
 import Link from "next/link"
 import EmptyCampaing from "./empty/empty-campaign"
 import { ExportData, GenerateQrCodes } from "./view-campaign-right";
+import { createClient } from "@/config/supabase/supabase-server"
+import { getServerSession } from "next-auth"
+
+export type TokenMint = {
+  id: string;
+  mint_address: string;
+  creator_email: string;
+  name: string;
+  symbol: string;
+  description: string;
+  initial_supply: number | string;
+  decimals: number | string;
+  created_at: string;
+  maxclaimsperwallet: string | number;
+  tokensperclaim: string | number;
+};
+
 
 const campaigns = [
     {
@@ -47,10 +64,44 @@ const campaigns = [
     },
   ]
 
-  
-const Campaign = () => {
+  const fetchData = async (email: string) => {
+    const supabase = createClient();
+    const { data, error } = await supabase.from('token_mints')
+    .select(`
+    id,
+    mint_address,
+    name,
+    symbol,
+    description,
+    initial_supply,
+    decimals,
+    created_at,
+    maxclaimsperwallet,
+    tokensperclaim`)
+    .eq('creator_email',email)
 
-    const isEmpty = false
+    return data as Array<TokenMint>;
+
+  }
+  
+const Campaign = async () => {
+  const session = await getServerSession()
+  const data = await fetchData(session?.user!.email!);
+  
+  const changeToNumber = (val: string | number) => {
+    if(typeof val === 'number') return val;
+    return Number(val);
+  }
+  const campaigns = data.map(campaign => ({
+    id: campaign.id,
+    name: campaign.name,
+    status: "completed",
+    totalSupply: changeToNumber(campaign.initial_supply),
+    claimed: 500,
+    qrCodes: 5,
+    createdAt: campaign.created_at
+  }))
+  const isEmpty = data.length < 1;
 
   return (
     <>
