@@ -4,6 +4,7 @@ import ViewAnalytics from "./components/view-analytics"
 import ViewSettings from "./components/view-settings"
 import Stats from "./components/stats"
 import { Suspense } from "react"
+import ViewCampaignSkeleton from "./components/view-campaign-skeleton"
 
 const AdminDashboard =  () => {
 
@@ -24,7 +25,7 @@ const AdminDashboard =  () => {
           </TabsList>
 
           <TabsContent value="campaigns" className="space-y-6">
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<ViewCampaignSkeleton />}>
               <Campaign />
             </Suspense>
           </TabsContent>
