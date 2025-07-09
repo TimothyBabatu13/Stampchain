@@ -26,14 +26,14 @@ export const POST = async (req: NextRequest) => {
   if (!session) {
     return NextResponse.json({
       success: false,
-      data: 'You have to active'
+      data: 'Please login to proceed'
     })
   }
   const body = await req.json();
   const validationResult = createCampaign.safeParse(body);
 
   if (!validationResult.success) {
-    return NextResponse.json({success: false, error:validationResult.error})
+    return NextResponse.json({success: false, error:validationResult.error, validationError: true})
   }
 
   const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
@@ -114,9 +114,10 @@ export const POST = async (req: NextRequest) => {
     if (error) {
       console.log(error)
     }
-    console.log(data)
+    
     return NextResponse.json({
       success: true,
+      validationError: false,
       unsignedTx: tx.serialize({
         requireAllSignatures: false,
       }).toString('base64'),
@@ -125,7 +126,7 @@ export const POST = async (req: NextRequest) => {
     })
   } catch (error) {
     const err = error as Error
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: err.message, success: false, validationError: false })
   }
 }
 

@@ -1,47 +1,47 @@
-
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useClaimStore } from "@/stores/claimStore"
-import { AlertCircle, ArrowRight, Camera, Loader2, QrCode } from "lucide-react"
+import { ArrowRight, Camera, Loader2, QrCode } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
-
-const mockCampaignData = {
-  name: "Coffee Shop Loyalty Program",
-  tokenSymbol: "COFFEE",
-  tokensPerClaim: 10,
-  description: "Earn loyalty tokens for every purchase at our coffee shop!",
+interface apiResponseType {
+  success: boolean,
+  data: null,
+  error: string | boolean
 }
 
 const Step1 = () => {
   const setStep = useClaimStore(e => e.setStep)
-  const [error, setError] = useState("")
   const [claimToken, setClaimToken] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const setClaimData = useClaimStore(s => s.setClaimData)
 
   const handleTokenSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!claimToken.trim()) return
-
     setIsLoading(true)
-    setError("")
-
-    // Simulate API call to validate token
-    setTimeout(() => {
-      if (claimToken.toLowerCase().includes("invalid")) {
-        setError("Invalid or expired claim token. Please check your QR code.")
-        setIsLoading(false)
-        return
-      }
-
-      setClaimData(mockCampaignData)
-      setStep(2)
+    try {
+      const api = await fetch('/api/claim', {
+        method: "POST",
+        body: JSON.stringify({token: claimToken})
+      })
+      const result = await api.json() as apiResponseType;
+      console.log(result)
+      // if(!result.success && typeof result.error === 'string'){
+      //   toast.error(result.error)
+      //   return
+      // }
+      setStep(2);
       setIsLoading(false)
-    }, 1000)
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message)
+    }
+    finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -66,12 +66,6 @@ const Step1 = () => {
             />
           </div>
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
 
           <Button
             type="submit"

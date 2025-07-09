@@ -5,6 +5,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { create_account_endpoint } from "../api-endpoints/api-endpoints";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const GoogleSignInBtn = () => {
   const router = useRouter();
@@ -22,7 +23,11 @@ const GoogleSignInBtn = () => {
         method: "POST",
         body: JSON.stringify(data)
       });
-      const result: {url: string} = await api.json();
+      const result: {url: string, success: false} = await api.json();
+      if(!result.success){
+        toast.error('An error occurred. Please try again',)
+        return
+      }
       router.push(result.url)
       setIsLoading(false)
     }
@@ -33,7 +38,8 @@ const GoogleSignInBtn = () => {
     try {
       await signIn("google", { redirect: false});
     } catch (error) {
-      console.log(error)
+      const err = error as Error
+      toast.error(`An error occured. Please try again later ${err.message}`)
     }
   }
 

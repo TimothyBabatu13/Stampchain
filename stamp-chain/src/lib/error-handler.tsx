@@ -123,8 +123,9 @@ export function showValidationErrors(error: ValidationError | Error) {
   // }
 }
 
+
 // Alternative function for showing all errors in a detailed format
-export function showDetailedValidationErrors(error: ValidationError | Error) {
+export function showDetailedValidationErrors(error: ValidationError | Error ) {
   console.log(error)
   // if (!error?.issues || !Array.isArray(error.issues)) {
   //   showValidationErrors(error)

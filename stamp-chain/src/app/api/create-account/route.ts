@@ -18,7 +18,7 @@ export const POST = async (req: NextRequest) => {
     .single()
 
     if(existingUser){
-        return NextResponse.json({url: '/admin'})
+        return NextResponse.json({success: true, url: '/admin'})
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,8 +29,8 @@ export const POST = async (req: NextRequest) => {
     .single()
 
     if (insertError) {
-        return NextResponse.json({ error: insertError.message })
+        return NextResponse.json({success: false, error: insertError.message })
     }
 
-    return NextResponse.json({url: '/admin'})
+    return NextResponse.json({success: true, url: '/admin'})
 }

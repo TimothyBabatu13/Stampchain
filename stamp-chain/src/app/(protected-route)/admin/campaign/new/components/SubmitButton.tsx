@@ -1,32 +1,32 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { showDetailedValidationErrors } from "@/lib/error-handler";
 import { useFormStore } from "@/stores/formStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 import { useWalletStore } from "@/stores/walletStore";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Transaction } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 
 const SubmitButton = () => {
-  
+
   const router = useRouter()
   const { loading, setIsLoading } = useLoadingStore()
   const form = useFormStore(e => e.form);
   const { walletAddress, wallet } = useWalletStore()
   const { signTransaction } = useWallet();
   // const { setCampaign, setSelectedCampaign } = useQrGeneratorStore()
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true);
 
-    if(!walletAddress || !wallet){
+    if (!walletAddress || !wallet) {
       return
     }
-   
+
     try {
       const sendCampaignData = await fetch("/api/create-campaign", {
         method: "POST",
@@ -36,19 +36,23 @@ const SubmitButton = () => {
           walletAddress: walletAddress,
         }),
       });
-      
+
       const resultOfSendCampaignData = await sendCampaignData.json();
-      
-      if(!resultOfSendCampaignData.success){
-        showDetailedValidationErrors(resultOfSendCampaignData.error)
+
+      if (!resultOfSendCampaignData.success && !resultOfSendCampaignData.validationError) {
+        toast.error(resultOfSendCampaignData.error)
+        return
+      }
+      if (!resultOfSendCampaignData.success && resultOfSendCampaignData.validationError) {
+        console.log(resultOfSendCampaignData.error)
         return
       }
       const { unsignedTx, mintPublicKey } = resultOfSendCampaignData;
-          
+
       const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));
-          
+
       const signedTx = await signTransaction!(tx);
-      
+
       const completeCampaignDataTransactiom = await fetch("/api/create-campaign/continue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,38 +61,40 @@ const SubmitButton = () => {
           mintPublicKey
         }),
       });
-      
+
       const result = await completeCampaignDataTransactiom.json();
-      if(result.success){
+      if (result.success) {
         router.push(result.url)
       }
     } catch (error) {
-      console.error("❌ Error during token creation:", error);
-    }finally{
+      const err = error as Error
+      toast.error(`An error occured ${err.message}`)
+      console.error(err);
+    } finally {
       setIsLoading(false)
     }
-        
-    
-  
-    
 
-      
-      // const createForm = {
-      //   id: crypto.randomUUID(),
-      //   name: form.name,
-      //   tokenSymbol: form.tokenSymbol
-      // }
 
-      // setCampaign(createForm);
-      // setSelectedCampaign(createForm.id);
 
-      // console.log(walletAddress)
-      // const api = await fetch('/api/create-campaign', {
-      //   method: 'POST',
-      //   body: JSON.stringify(form)
-      // });
-      // const response = await api.json();
-      // console.log(response)
+
+
+
+    // const createForm = {
+    //   id: crypto.randomUUID(),
+    //   name: form.name,
+    //   tokenSymbol: form.tokenSymbol
+    // }
+
+    // setCampaign(createForm);
+    // setSelectedCampaign(createForm.id);
+
+    // console.log(walletAddress)
+    // const api = await fetch('/api/create-campaign', {
+    //   method: 'POST',
+    //   body: JSON.stringify(form)
+    // });
+    // const response = await api.json();
+    // console.log(response)
 
   }
 
@@ -101,14 +107,17 @@ const SubmitButton = () => {
     >
       {
         loading ? (
-            <div 
-              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" 
+          <div className="flex items-center gap-2">
+            <div
+              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
             />
+            <span>Creating...</span>
+          </div>
         ) : (
           <>Create Campaign</>
         )
       }
-      
+
     </Button>
   )
 }

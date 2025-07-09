@@ -7,11 +7,14 @@ import { Label } from "@/components/ui/label"
 import { copyToClipboard, downloadQRCode } from "@/helper/client-functions"
 import { useQrGeneratorStore } from "@/stores/qrGeneratorStore"
 import { CheckCircle, Copy, Download, QrCode } from "lucide-react"
-import { useState } from "react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import QRCode from "react-qr-code";
+import { toast } from "sonner"
 
 const QRCodeDisplay = () => {
 
-    const qrCodes = useQrGeneratorStore(s => s.qrCodes)
+    const { qrCodes, selectedCampaign: id, setQrCodes } = useQrGeneratorStore()
     const [copiedToken, setCopiedToken] = useState("")
 
     const copyToken = (token: string) => {
@@ -24,9 +27,31 @@ const QRCodeDisplay = () => {
         })
     }
 
-    
-
-
+    useEffect(()=>{
+      const fetchData = async () => {
+        if(!id) return;
+        try {
+          const api = await fetch('/api/load-qr-codes', {
+            method: "POST",
+            body: JSON.stringify({
+              id: id
+            })
+          });
+          const res = await api.json() as {  success: boolean, error: string | false, data: null | { id: string, url: string, token: string }[] };
+          if(typeof res.error === 'string' && !res.success){
+            toast.error(res.error);
+            return
+          }
+          const result = res.data!
+          setQrCodes(result);
+        } catch (error) {
+          const err = error as Error;
+          toast.error(err.message)
+        }
+        
+      }
+      fetchData();
+    }, [id])
   return (
     <div className="lg:col-span-2">
             {qrCodes.length === 0 ? (
@@ -63,12 +88,16 @@ const QRCodeDisplay = () => {
                         {/* QR Code Placeholder */}
                         <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
                           <div className="text-center">
-                            <QrCode className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                            <p className="text-xs text-gray-500">QR Code Image</p>
+                          <QRCode
+                            size={256}
+                            style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                            value={qrCode.url}
+                            viewBox={`0 0 256 256`}
+                            id={`qr-code--${qrCode.id}`}
+                          />
                           </div>
                         </div>
 
-                        {/* Token Display */}
                         <div className="space-y-2">
                           <Label className="text-xs text-gray-600">Claim Token:</Label>
                           <div className="flex items-center gap-2">
@@ -95,12 +124,17 @@ const QRCodeDisplay = () => {
                             Download
                           </Button>
                           <Button
+                            asChild
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(qrCode.url, "_blank")}
                             className="flex-1"
                           >
-                            Test Claim
+                            <Link 
+                              href={`${qrCode.url}`}
+                              prefetch={false}
+                            >
+                              Test Claim
+                            </Link>
                           </Button>
                         </div>
                       </CardContent>

@@ -6,6 +6,19 @@ export const Steps = () => {
     const step = useClaimStore(s => s.step)
     const { wallet } = useWalletStore();
     
+    const renderText = (step: number, sub?: boolean) => {
+      if(step === 1){
+        return sub ? "Enter Claim Token" : "Scan the QR code or enter your claim token to get started"
+      }
+      if(step === 2) {
+        if(sub){
+          return  wallet ? "Claim to your wallet" : "Connect Your Wallet" 
+        }
+        return wallet ? "Claim your loyalty tokens to your wallet" : "Connect your wallet to receive your loyalty tokens"
+      }
+      return sub ? "Claim Successful" : "Your tokens have been successfully claimed!"
+    }
+    renderText(step)
     return(
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-4 mb-4">
@@ -35,14 +48,14 @@ export const Steps = () => {
           </div>
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">
-              {step === 1 && "Enter Claim Token"}
-              {step === 2 && wallet ? "Claim to your wallet" : "Connect Your Wallet"}
-              {step === 3 && "Claim Successful!"}
+              {
+                renderText(step, true)
+              }
             </h1>
             <p className="text-gray-600">
-              {step === 1 && "Scan the QR code or enter your claim token to get started"}
-              {step === 2 && wallet ? "Claim your loyalty tokens to your wallet" : "Connect your wallet to receive your loyalty tokens"}
-              {step === 3 && "Your tokens have been successfully claimed!"}
+              {
+                renderText(step)
+              }
             </p>
           </div>
           </div>

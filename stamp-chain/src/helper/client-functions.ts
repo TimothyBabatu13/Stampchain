@@ -1,3 +1,6 @@
+import { toPng } from "html-to-image";
+import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 interface copyToClipboardType {
     token: string,
     callback?: () => void
@@ -9,12 +12,39 @@ export const copyToClipboard = ({ token, callback } : copyToClipboardType) => {
     }
 }
 
-export const downloadQRCode = (qrCode: {
+export const downloadQRCode = async (qrCode: {
     id: string;
     url: string; 
     token: string; 
 }) => {
-    // In a real app, this would generate and download the actual QR code image
-    console.log("Downloading QR code:", qrCode)
+    const id = document.getElementById(`qr-code--${qrCode.id}`)!;
+    console.log(id)
+    const dataUrl = await toPng(id);
+
+    const link = document.createElement("a");
+    link.download = "qr-code.png";
+    link.href = dataUrl;
+    link.click();
 }
 
+export const downloadAllQRCodes = async (ids: string[], setIsLoading :Dispatch<SetStateAction<boolean>>) => {
+    setIsLoading(true)
+    
+    const arr = ids.map(async (id, number) =>{
+        const i = document.getElementById(id)!;
+        try {  
+            const dataURL = await toPng(i)
+            const link = document.createElement('a');
+            link.download = `qr-code-${number + 1}.png`;
+            link.href = dataURL;
+            link.click()
+        } catch (error) {
+            const err = error as Error
+            toast.error(err.message)
+        }
+    })
+
+    await Promise.all(arr);
+    setIsLoading(false)
+    
+}

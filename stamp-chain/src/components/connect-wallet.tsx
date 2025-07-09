@@ -8,6 +8,7 @@ import { useWalletStore } from "@/stores/walletStore"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useEffect, useState } from "react"
 import { WalletName } from "@solana/wallet-adapter-base"
+import { cn } from "@/lib/utils"
 
 interface WalletItem {
   name: string
@@ -16,7 +17,9 @@ interface WalletItem {
   installUrl?: string
 }
 
-const WalletModal =() => {
+const WalletModal =({ styles } : {
+  styles?: string
+}) => {
  
   const connecting = null
   const connected = null
@@ -51,8 +54,8 @@ const WalletModal =() => {
   return (
     <Dialog>
         <DialogTrigger asChild >    
-            <Button>
-                Connect Wallet
+            <Button className={cn(styles)}>
+              Connect Wallet
             </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -114,12 +117,14 @@ const WalletModal =() => {
 }
 
 
-const ConnectWallet = () => {
+const ConnectWallet = ({ className } : {
+  className?: string
+}) => {
   const { wallet } = useWalletStore();
   
   if(wallet) return null
     return(
-        <WalletModal/>
+        <WalletModal styles={className} />
     )
 }
 

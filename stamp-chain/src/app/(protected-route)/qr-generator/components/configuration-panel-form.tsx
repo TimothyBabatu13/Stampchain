@@ -4,26 +4,43 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQrGeneratorStore } from "@/stores/qrGeneratorStore";
-import { Download, QrCode } from "lucide-react";
-import { useState } from "react";
+import { downloadAllQRCodes } from "@/helper/client-functions";
+import { campaingsType, useQrGeneratorStore } from "@/stores/qrGeneratorStore";
+import { Download, LoaderIcon, QrCode } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
+interface getAllCampaigns {
+    success: boolean,
+    error: boolean | string,
+    data: Array<campaingsType>
+}
+
+interface qrcodeType {
+    unique_code: string,
+    claim_url: string
+}
+
+interface createGRCodesResult {
+    success: boolean,
+    error: boolean | string,
+    data: null | []
+}
 const ConfigurationPanelForm = () => {
     
-    const campaigns = useQrGeneratorStore(s => s.campaign)
-    const selectedCampaign = useQrGeneratorStore(s => s.selectedCampaign)
-    const setSelectedCampaign = useQrGeneratorStore(s => s.setSelectedCampaign)
-    const qrCount = useQrGeneratorStore(s => s.qrCount);
-    const setQrCount = useQrGeneratorStore(s => s.setQrCount)
-    const qrCodes = useQrGeneratorStore(s => s.qrCodes);
-    const setQrCodes = useQrGeneratorStore(s => s.setQrCodes);
+    const { campaign: campaigns, selectedCampaign, setSelectedCampaign, qrCount, setQrCount, qrCodes, setQrCodes,setCampaign } = useQrGeneratorStore()
     const [isGenerating, setIsGenerating] = useState(false)
-    
+    const [isLoading, setIsLoading] = useState(false);
+    const select = campaigns.filter(it => it.id === selectedCampaign)[0]?.id;
+    const getArrayofIdsOfQrCodes = () => {
+        const ids = qrCodes.map(i => `qr-code--${i.id}`);
+        return ids
+    }
     const generateQRCodes = async () => {
         setIsGenerating(true)
         try {
             if(!selectedCampaign || !qrCount) return;
-            const campaign = campaigns.filter((item) => item.id === selectedCampaign)[0];
+            const campaign = campaigns.filter((item) => item.id === selectedCampaign)[0].id;
 
             const data = {
                 qrCount,
@@ -33,12 +50,34 @@ const ConfigurationPanelForm = () => {
                 method: "POST",
                 body: JSON.stringify(data)
             });
-            const res = await api.json();
-            setQrCodes(res.response)
+
+            const res = await api.json() as createGRCodesResult;
+
+            if(!res.success && typeof res.error === 'string') {
+                const parse = JSON.parse(res.error) as Array<{ message: string }>;
+                const errMessages = parse.map(i => i.message)
+                const errorHTMLCode = errMessages.map(i => (
+                    <div key={crypto.randomUUID()}>
+                        {i}
+                    </div>
+                ))
+                toast.error(<>{errorHTMLCode}</>);
+                return;
+            }
+
+            const { data: qrCode } = res;
+            const dataValue = qrCode as unknown as qrcodeType[] 
+            const mapp = dataValue.map(i => ({
+                id: i.unique_code,
+                url: i.claim_url,
+                token: i.unique_code
+            }))
+            setQrCodes(mapp)
             setIsGenerating(false)
+
         } catch (error) {
             const err = error as Error;
-            console.log(err);
+            toast.error(err.message);
             setIsGenerating(false)
         }
         finally{
@@ -46,25 +85,42 @@ const ConfigurationPanelForm = () => {
         }
     }
     
-    const downloadAllQRCodes = () => {
-        // In a real app, this would generate a ZIP file with all QR codes
-        console.log("Downloading all QR codes")
-    }
+
+    useEffect(()=>{
+        const fetchData = async () => {
+            try {
+                const api = await fetch('api/get-all-campaigns');
+                const res = await api.json() as getAllCampaigns;
+                if(!res.success && typeof res.error === 'string'){
+                    toast.error(res.error);
+                    return;
+                }
+                setCampaign(res.data)
+            } catch (error) {
+                const err = error as Error;
+                toast.error(err.message)
+            }
+        }
+        fetchData();
+    }, [])
 
   return (
     <CardContent className="space-y-4">
         <div className="space-y-2">
             <Label htmlFor="campaign">Select Campaign *</Label>
-            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+            <Select value={select || selectedCampaign} onValueChange={setSelectedCampaign}>
                 <SelectTrigger>
                     <SelectValue placeholder="Choose a campaign" />
                 </SelectTrigger>
                 <SelectContent>
-                    {campaigns.map((campaign) => (
-                        <SelectItem key={campaign.id} value={campaign.id}>
+                    {campaigns.length > 0 && campaigns.map((campaign) => (
+                        <SelectItem className="cursor-pointer" key={campaign.id} value={campaign.id}>
                           {campaign.name} ({campaign.tokenSymbol})
                         </SelectItem>
                     ))}
+                    {
+                        campaigns.length < 1 && <span>You have no campaign</span>
+                    }
                 </SelectContent>
             </Select>
         </div>
@@ -102,9 +158,13 @@ const ConfigurationPanelForm = () => {
                 </Button>
 
                 {qrCodes.length > 0 && (
-                  <Button onClick={downloadAllQRCodes} variant="outline" className="w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download All ({qrCodes.length})
+                  <Button onClick={()=>downloadAllQRCodes(getArrayofIdsOfQrCodes(), setIsLoading)} variant="outline" className="w-full">
+                    {
+                        isLoading ? <LoaderIcon className="w-4 h-4 mr-2"/> : <Download className="w-4 h-4 mr-2" />
+                    }
+                    {
+                        isLoading ? 'Downloading...' : `Download All (${qrCodes.length})`
+                    }
                   </Button>
                 )}
               </CardContent>

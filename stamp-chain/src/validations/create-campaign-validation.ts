@@ -31,3 +31,14 @@ export const createCampaign = z.object({
     invalid_type_error: "Wallet address must be a string.",
   }).nonempty("Wallet address must not be empty"),
 });
+
+export const continueCreateCampaign = z.object({
+  signedTx: z.string({
+    required_error: "signedTx is required",
+    invalid_type_error: "signedTx must be string"
+  }).nonempty("signedTx must not be empty"),
+  mintPublicKey: z.string({
+    required_error: "mint publickey is required",
+    invalid_type_error: "mint public key must be string"
+  }).nonempty("mint public key must not be empty")
+})

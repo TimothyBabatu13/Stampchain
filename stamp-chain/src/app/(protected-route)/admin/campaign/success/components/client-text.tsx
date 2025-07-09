@@ -2,7 +2,7 @@ import { createClient } from "@/config/supabase/supabase-server";
 import { formatNumber } from "@/lib/format-number";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-
+import ClientRenderedSonner from "../../../components/client-rendered-sonner";
 
 type TokenMint = {
   id: string;
@@ -11,23 +11,41 @@ type TokenMint = {
   mint_address: string;
   symbol: string;
   tokensperclaim: string | number;
-};
+}; 
 
-const fetchData = async (mintPublicKey:string, creator_email: string) => {
-  const supabase = createClient();
-  const { data, error } = await supabase
-      .from('token_mints')
-      .select('id, mint_address, symbol, initial_supply, maxclaimsperwallet, tokensperclaim')
-      .eq('mint_address', mintPublicKey)
-      .eq('creator_email', creator_email)
-      .single()
+interface fetchDataType {
+  data: null | TokenMint,
+  success: boolean,
+  error: boolean | string
+}
 
+const fetchData = async (mintPublicKey:string, creator_email: string): Promise<fetchDataType> => {
+  try {
+    
+    const supabase = createClient();
+    const { data, error } = await supabase
+    .from('token_mints')
+    .select('id, mint_address, symbol, initial_supply, maxclaimsperwallet, tokensperclaim')
+    .eq('mint_address', mintPublicKey)
+    .eq('creator_email', creator_email)
+    .single()
+    
     if(error){
       return {
-        success: false
+        success: false,
+        data: null,
+        error: error.message
       } 
     }
-    return data
+    return { data: data, success: true, error: false} 
+  } catch (error) {
+    const err = error as Error;
+    return{
+      success: false,
+      error: err.message,
+      data: null
+    }
+  }
 }
 
 export const TotalSupply = async ({ id } : {
@@ -40,19 +58,34 @@ export const TotalSupply = async ({ id } : {
   if(!session){
     return redirect('/login');
   }
+
+  let errorMessage = '';
+  let errorOccured = false
   
-  const data = await fetchData(id, session.user!.email!) as TokenMint
+  const { data, error, success } = await fetchData(id, session.user!.email!)
+
+  if(!success && typeof error === 'string'){
+    errorMessage = error;
+    errorOccured = true
+  }
 
   const tokenSupply = () => {
-    const { initial_supply } = data;
+    
+    const initial_supply = data?.initial_supply
     if(typeof initial_supply === 'string'){
       return formatNumber(Number(initial_supply));
     }
-    return formatNumber(initial_supply)
+    if(typeof initial_supply === 'number'){
+      return formatNumber(initial_supply)
+    }
+    return ''
   }
-    const symbol = data.symbol
+    const symbol = data?.symbol
   return (
-    <div className="text-2xl font-bold text-blue-600 mb-1">{tokenSupply()} {symbol}</div>
+    <>
+      <div className="text-2xl font-bold text-blue-600 mb-1">{tokenSupply()} {symbol}</div>
+      <ClientRenderedSonner errorMessage={errorMessage} isVisible={errorOccured}/>
+    </>
   )
 }
 
@@ -66,16 +99,31 @@ export const TokenClaim = async ({ id } : {
     return redirect('/login');
   }
   
-  const data = await fetchData(id, session.user!.email!) as TokenMint
+  let errorMessage = '';
+  let errorOccured = false
+
+  const { data, error, success } = await fetchData(id, session.user!.email!)
+
+  if(!success && typeof error === 'string'){
+    errorMessage = error;
+    errorOccured = true
+  }
+
   const tokenClaim = () => {
-    const { tokensperclaim } = data;
+    const tokensperclaim = data?.tokensperclaim;
     if(typeof tokensperclaim === 'string') {
       return formatNumber(Number(tokensperclaim));
     }
-    return formatNumber(tokensperclaim)
+    if(typeof tokensperclaim === 'number'){
+      return formatNumber(tokensperclaim)
+    }
+    return ''
   }
 
     return(
-        <div className="text-2xl font-bold text-purple-600 mb-1">{tokenClaim()} per claim</div>
+      <>
+      <div className="text-2xl font-bold text-purple-600 mb-1">{tokenClaim()} per claim</div>
+      <ClientRenderedSonner errorMessage={errorMessage} isVisible={errorOccured}/>
+      </>
     )
 }

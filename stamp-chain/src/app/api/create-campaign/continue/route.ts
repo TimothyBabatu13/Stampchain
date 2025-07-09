@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { NextRequest, NextResponse } from "next/server"
 import { Buffer } from "buffer"
 import { createClient } from "@/config/supabase/supabase-server"
+import { continueCreateCampaign } from "@/validations/create-campaign-validation"
 
 export const POST = async (req: NextRequest) => {
 
@@ -15,8 +16,17 @@ export const POST = async (req: NextRequest) => {
         })
     }
     
-    const { signedTx, mintPublicKey } = await req.json()
+    const result = await req.json();
+    const { success, data, error } = continueCreateCampaign.safeParse(result);
 
+    if(!success){
+        return NextResponse.json({
+            success: false,
+            message: error.message
+        })
+    }
+
+    const { signedTx, mintPublicKey } = data;
     const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
   
     try {
@@ -24,7 +34,11 @@ export const POST = async (req: NextRequest) => {
         const signature = await connection.sendRawTransaction(tx.serialize())
         await connection.confirmTransaction(signature)
         const supabase = createClient();
-        const { data, error } = await supabase.from('token_mints').select('*').eq('mint_address', mintPublicKey).single()
+        const { data, error } = await supabase
+        .from('token_mints')
+        .select('id')
+        .eq('mint_address', mintPublicKey)
+        .single()
         
         if(error){
             return NextResponse.json({
@@ -40,7 +54,9 @@ export const POST = async (req: NextRequest) => {
         })    
     } catch (error) {
         const err = error as Error
-        return NextResponse.json(err.message)
+        return NextResponse.json({err: err.message,
+            success: false
+        })
     }
     
   

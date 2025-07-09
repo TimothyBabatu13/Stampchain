@@ -1,41 +1,88 @@
-import { campaingsType } from "@/stores/qrGeneratorStore";
+import { createClient } from "@/config/supabase/supabase-server";
+import { generateURL } from "@/util/generate-url";
+import { CreateQRCodesValidation } from "@/validations/create-qr-codes-validation";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-
-interface bodyType {
-    qrCount: string;
-    campaign: campaingsType;
-}
-
-
-const generateRandomUID = () => crypto.randomUUID();
-
-const generateCodes = (num: number) => {
-    const arr : Array<string> = [];
-    for(let i = 0; i < num; i++) {
-        arr.push(generateRandomUID());
-    }
-    return arr;
-}
-
-const generateId = (id: string) => `qr-${Date.now()}-${id}`
-const generateURL = (id: string) => `https://example.com/claim?token=abc123def456-${id}`;  
+import { v4 as uuidv4 } from "uuid";
 
 export const POST = async (req: NextRequest) => {
-    const body: bodyType = await req.json();
+    
+    
+    const session = await getServerSession();
 
-    if(!body.qrCount || !body.campaign.id || !body.campaign.name || !body.campaign.tokenSymbol){
-        return NextResponse.json({status: '201', response: 'Please provide qr counts'})
+    if(!session) {
+        return NextResponse.json({
+            success: false,
+            error: `You have no access to this. Please log in`,
+            data: null
+        })
     }
 
-    const { qrCount, campaign } = body;
+    const body = await req.json();
+    const validatedBody =  CreateQRCodesValidation.safeParse(body);
+    
+    if(!validatedBody.success){
+        return NextResponse.json({
+            success: false,
+            data: null,
+            error: validatedBody.error.message
+        })
+    }
 
-    const arr = generateCodes(Number(qrCount));
-    const result = arr.map((item) => ({
-       id: item,
-       url: generateURL(item),
-       token: generateId(item) 
-    }))
+    const { data: { campaign, qrCount } } = validatedBody;
 
-    console.log(`Campaign created for this info`, campaign.name, campaign.tokenSymbol, campaign.id)
-    return NextResponse.json({status: '200', response: result});
+    const supabase = createClient();
+    try {
+        const { data, error } = await supabase
+        .from('token_mints')
+        .select(`id`)
+        .eq('id', campaign)
+        .maybeSingle();
+
+        if(error){
+            console.log(error)
+            return NextResponse.json({
+                success: false,
+                error: error.message,
+                data: null
+            })
+        }
+        
+        const codes = Array.from({ length: Number(qrCount) }, () => {
+            const unique_code = uuidv4();
+            return {
+              campaign_id: data?.id,
+              unique_code,
+              used: false
+            };
+          });
+        
+          const { error: insertError } = await supabase
+          .from("qr_codes")
+          .insert(codes);
+          
+          if (insertError) {
+            return NextResponse.json({
+                success: false,
+                error: "Failed to insert QR codes",data: null,
+            });
+        }
+
+          return NextResponse.json({
+            success: true,
+            data: codes.map(code => ({
+              unique_code: code.unique_code,
+              claim_url: generateURL(code.unique_code),
+            })),
+            error: false,
+          });
+        
+    } catch (error) {
+        const err = error as Error
+        return NextResponse.json({
+            success: false,
+            error: err.message,
+            data: null
+        })
+    }
 }

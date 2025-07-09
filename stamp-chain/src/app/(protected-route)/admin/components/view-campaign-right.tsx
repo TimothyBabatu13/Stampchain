@@ -1,8 +1,10 @@
 'use client';
 
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useQrGeneratorStore } from "@/stores/qrGeneratorStore";
 import { Download, QrCode } from "lucide-react";
 import { useRouter } from "next/navigation";
+
 interface ComponentProp {
     id: string,
     name: string,
@@ -12,15 +14,16 @@ interface ComponentProp {
     qrCodes: number,
     createdAt: string
 }
-export const GenerateQrCodes  = ({  } : ComponentProp) => {
+export const GenerateQrCodes  = ({ id } : ComponentProp) => {
 
-    const navigate = useRouter()
+    const navigate = useRouter();
+    const { setSelectedCampaign } = useQrGeneratorStore();
     const handleGenerateQrCodes = () => {
-        navigate.push(`/qr-generator`)
+        navigate.push(`/qr-generator`);
+        setSelectedCampaign(id)
     }
     
     const handlePrefetch = () => {
-        console.log('prefetching...')
         navigate.prefetch('/qr-generator');
     }
   return (

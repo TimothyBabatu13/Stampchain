@@ -9,6 +9,7 @@ import EmptyCampaing from "./empty/empty-campaign"
 import { ExportData, GenerateQrCodes } from "./view-campaign-right";
 import { createClient } from "@/config/supabase/supabase-server"
 import { getServerSession } from "next-auth"
+import ClientRenderedSonner from "./client-rendered-sonner"
 
 export type TokenMint = {
   id: string;
@@ -22,33 +23,132 @@ export type TokenMint = {
   created_at: string;
   maxclaimsperwallet: string | number;
   tokensperclaim: string | number;
+  qrCodes: number,
+  tokens_claimed: string
 };
 
-  const fetchData = async (email: string) => {
-    const supabase = createClient();
-    const { data, error } = await supabase.from('token_mints')
-    .select(`
-    id,
-    mint_address,
-    name,
-    symbol,
-    description,
-    initial_supply,
-    decimals,
-    created_at,
-    maxclaimsperwallet,
-    tokensperclaim`)
-    .eq('creator_email',email)
+type fetchDataType = {
+  success: boolean,
+  data: [] | Array<TokenMint>,
+  error: string | boolean
+}
 
-    console.log(error)
-    return data as Array<TokenMint>;
+type QRCountData = {
+  campaign_id : string,
+  claimed_at: null | Date,
+  created_at: Date,
+  id: string,
+  unique_code: string,
+  used: boolean
+}
+
+type QRCountResponse = {
+  success: boolean,
+  data: [] | QRCountData[],
+  error: string | boolean
+}
+
+  const fetchData = async (email: string): Promise<fetchDataType> => {
+    try {
+      const supabase = createClient();
+      
+      const { data, error } = await supabase.from('token_mints')
+      .select(`
+        id,
+        mint_address,
+        name,
+        symbol,
+        description,
+        initial_supply,
+        decimals,
+        created_at,
+        maxclaimsperwallet,
+        tokensperclaim, 
+        tokens_claimed`)
+      .eq('creator_email',email)
+    
+      if(error){
+        return {
+          success: false,
+          data: [],
+          error: error.message
+        }
+      }
+
+      const ids = data.map(async(datum) => {
+        return fetchQrCount(datum.id)
+      })
+      const token_mints_data = data as Array<TokenMint>
+      const result = await Promise.all(ids) as never as QRCountResponse[];
+
+      const realData = token_mints_data.map((token, index) => ({
+        ...token,
+        qrCodes: result[index].data.length,
+      }))
+
+      return {
+        success: true,
+        data: realData as Array<TokenMint>,
+        error: false
+      }
+    } catch (error) {
+      const err = error as Error;
+      return {
+        success: false,
+        data: [],
+        error: err.message
+      } 
+    }
 
   }
-  
+
+  const fetchQrCount = async (id: string) => {
+    const supabase = createClient();
+
+    try {
+      
+      const { data, error } = await supabase
+      .from('qr_codes')
+      .select('*')
+      .eq('campaign_id', id)
+      
+      if(error) {
+        return {
+          success: false,
+          data: [],
+          error: error.message
+        }
+      }
+
+      return {
+        success: true,
+        data,
+        error: false
+      }
+    } catch (error) {
+      const err = error as Error;
+      return{
+        success: false,
+        data: [],
+        error: err.message
+      }
+    }
+    
+  }
 const Campaign = async () => {
-  const session = await getServerSession()
-  const data = await fetchData(session!.user!.email!);
   
+  let error = false;
+  let errorMessage: string = '';
+
+  const session = await getServerSession()
+  const response = await fetchData(session!.user!.email!);
+  
+  if(!response.success && typeof response.error === 'string'){
+    errorMessage = response.error;
+    error = true;
+  }
+
+  const { data } = response
   const changeToNumber = (val: string | number) => {
     if(typeof val === 'number') return val;
     return Number(val);
@@ -56,16 +156,18 @@ const Campaign = async () => {
   const campaigns = data.map(campaign => ({
     id: campaign.id,
     name: campaign.name,
-    status: "completed",
+    status: (Number(campaign.tokens_claimed) / Number(campaign.initial_supply)) * 100 === 100 ? 'completed' : 'active',
     totalSupply: changeToNumber(campaign.initial_supply),
-    claimed: 500,
-    qrCodes: 5,
+    claimed: changeToNumber(campaign.tokens_claimed),
+    qrCodes: campaign.qrCodes,
     createdAt: campaign.created_at
   }))
-  const isEmpty = campaigns.length < 1;
+
+  const isEmpty = data.length < 1;
 
   return (
     <>
+      <ClientRenderedSonner errorMessage={errorMessage} isVisible={error} />
         {
             isEmpty ? <EmptyCampaing /> : (
                 <div className="space-y-6">

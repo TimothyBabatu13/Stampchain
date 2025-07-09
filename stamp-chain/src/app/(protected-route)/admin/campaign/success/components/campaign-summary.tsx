@@ -1,5 +1,6 @@
 import { CardContent } from "@/components/ui/card"
 import { TokenClaim, TotalSupply } from "./client-text";
+import { Suspense } from "react";
 
 const CapaignSummary = ({ id } : {
   id: string
@@ -8,11 +9,15 @@ const CapaignSummary = ({ id } : {
     <CardContent>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-          <TotalSupply id={id}/>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <TotalSupply id={id}/>
+          </Suspense>
           <div className="text-sm text-gray-600">Total Supply</div>
         </div>
         <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-          <TokenClaim id={id}/>
+          <Suspense fallback={<h1>Loading...</h1>}>
+            <TokenClaim id={id}/>
+          </Suspense>
           <div className="text-sm text-gray-600">Tokens per Claim</div>
         </div>
         <div className="text-center p-4 bg-white rounded-lg shadow-sm">

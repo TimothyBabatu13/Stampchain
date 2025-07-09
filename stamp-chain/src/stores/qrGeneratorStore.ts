@@ -11,17 +11,11 @@ interface qrCodeType {
   token: string
 }
 
-const campaigns : Array<campaingsType> = [
-  { id: "1", name: "Coffee Shop Loyalty", tokenSymbol: "COFFEE" },
-  { id: "2", name: "YouTube Subscriber Rewards", tokenSymbol: "YT" },
-  { id: "3", name: "Conference Attendance", tokenSymbol: "CONF" },
-]
-
 type FormStore = {
   campaign: Array<campaingsType>,
   selectedCampaign: string,
   setSelectedCampaign: (id: string) => void,
-  setCampaign: (data: campaingsType) => void,
+  setCampaign: (data: Array<campaingsType>) => void,
   qrCount: string, 
   setQrCount: (value: string) => void,
   qrCodes: Array<qrCodeType>, 
@@ -29,7 +23,7 @@ type FormStore = {
 }
 
 export const useQrGeneratorStore = create<FormStore>((set) => ({
-  campaign: campaigns,
+  campaign: [],
   selectedCampaign: '',
   setSelectedCampaign: (id) => {
     set({
@@ -47,8 +41,8 @@ export const useQrGeneratorStore = create<FormStore>((set) => ({
     }))
   },
   setCampaign: (values) => {
-    set((prev) => ({
-      campaign: [...prev.campaign, values]
-    }))
+    set({
+      campaign: values
+    })
   }
 }))
