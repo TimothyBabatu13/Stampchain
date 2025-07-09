@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "../ui/button"
-import { QrCode, Zap } from "lucide-react"
+import { Zap } from "lucide-react"
 import { userIsActive } from "@/util/server";
 
 export const CreateCampaignLink = async () => {
@@ -18,18 +18,4 @@ export const CreateCampaignLink = async () => {
         </Button>
     </Link>
   )
-}
-
-export const ClaimLink = async () => {
-
-    const isActive = await userIsActive();
-
-    return (
-        <Link href={isActive ? "/claim" : "/login"}>
-            <Button size="lg" variant="outline">
-                <QrCode className="w-5 h-5 mr-2" />
-                Claim Rewards
-            </Button>
-        </Link>
-    )
 }

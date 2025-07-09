@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, QrCode } from "lucide-react"
 import Link from "next/link"
 import { Business,  Features } from "@/components/Features"
-import { ClaimLink, CreateCampaignLink } from "@/components/server-components/Links"
+import { CreateCampaignLink } from "@/components/server-components/Links"
 import { Suspense } from "react"
 
 const LandingPage = () => {
@@ -23,9 +23,12 @@ const LandingPage = () => {
             <Suspense fallback={<h1>Loading...</h1>}>
               <CreateCampaignLink />
             </Suspense>
-            <Suspense fallback={<h1>Loading...</h1>}>
-              <ClaimLink />
-            </Suspense>
+            <Link href={"/claim"}>
+            <Button size="lg" variant="outline">
+                <QrCode className="w-5 h-5 mr-2" />
+                Claim Rewards
+            </Button>
+        </Link>
           </div>
         </div>
       </section>
