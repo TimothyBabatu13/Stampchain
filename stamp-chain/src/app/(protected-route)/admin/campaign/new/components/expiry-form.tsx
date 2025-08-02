@@ -16,7 +16,7 @@ const ExpiryForm = () => {
     <Card className="border-0 shadow-lg">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
                   <Shield className="w-4 h-4 text-white" />
                 </div>
                 <div>

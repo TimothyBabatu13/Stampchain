@@ -102,7 +102,7 @@ const SubmitButton = () => {
     <Button
       type="submit"
       onClick={handleSubmit}
-      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+      variant={'outline'}
       disabled={!form.name || !form.tokenSymbol || !form.totalSupply || !form.tokensPerClaim || loading || !form.maxClaimsPerWallet || !wallet || !walletAddress}
     >
       {

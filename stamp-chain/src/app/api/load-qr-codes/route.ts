@@ -7,7 +7,7 @@ interface dataTpe {
     id: string,
     campaign_id: string,
     unique_code: string,
-    used: false,
+    used: boolean,
     claimed_at: null | Date,
     created_at: Date
 }

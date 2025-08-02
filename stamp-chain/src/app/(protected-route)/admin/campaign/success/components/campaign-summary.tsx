@@ -21,7 +21,7 @@ const CapaignSummary = ({ id } : {
           <div className="text-sm text-gray-600">Tokens per Claim</div>
         </div>
         <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-          <div className="text-2xl font-bold text-green-600 mb-1">Active</div>
+          <div className="text-2xl font-bold text-black mb-1">Active</div>
           <div className="text-sm text-gray-600">Campaign Status</div>
         </div>
       </div>

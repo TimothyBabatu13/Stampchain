@@ -1,4 +1,5 @@
 import { createClient } from "@/config/supabase/supabase-server";
+import { Keypair } from "@solana/web3.js";
 import { NextRequest, NextResponse } from "next/server"
 
 interface requestType {
@@ -21,10 +22,15 @@ export const POST = async (req: NextRequest) => {
         return NextResponse.json({success: true, url: '/admin'})
     }
 
+    const mintAuthority = Keypair.generate();
+    
+    const server_wallet = mintAuthority.publicKey.toString();
+    const server_key = mintAuthority.secretKey;
+    console.log(server_wallet, server_key)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data: _newUser, error: insertError } = await supabase
     .from('users')
-    .insert([{ email }])
+    .insert([{ email, server_wallet, server_key }])
     .select()
     .single()
 

@@ -13,7 +13,10 @@ const LogOutButton = () => {
   }
 
   return (
-    <Button onClick={handleLogOut}>
+    <Button 
+      onClick={handleLogOut}
+      variant={'outline'}  
+    >
       Logout
     </Button>
   )
@@ -21,10 +24,10 @@ const LogOutButton = () => {
 
 const Logo = () => (
 <Link href="/" className="flex items-center gap-2">
-    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+    <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
         <Sparkles className="w-5 h-5 text-white" />
     </div>
-    <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <span className="text-xl font-bold bg-black bg-clip-text text-transparent">
         LaaS
     </span>
 </Link>
@@ -91,7 +94,9 @@ const Header = () => {
             </div>
             <div className="flex items-center gap-6">
               <Link href="/admin/campaign/new">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button 
+                  variant={'outline'}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   New Campaign
                 </Button>
@@ -115,10 +120,10 @@ const Header = () => {
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-black bg-clip-text text-transparent">
               New Campaign
             </span>
           </div>
@@ -154,10 +159,10 @@ const Header = () => {
             </div>
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br bg-black rounded-lg flex items-center justify-center">
                   <QrCode className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r bg-black bg-clip-text text-transparent">
                   QR Generator
                 </span>
               </div>
@@ -193,7 +198,9 @@ const Header = () => {
               ):
               (
                 <Link href={'/login'}>
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button 
+                    variant={'outline'}
+                  >
                     Get Started
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

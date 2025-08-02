@@ -20,19 +20,19 @@ const CampaignPreview = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <Coins className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                  <Coins className="w-8 h-8 mx-auto mb-2 text-black" />
                   <div className="text-lg font-bold">
                     {form.totalSupply || "0"} {form.tokenSymbol || "TOKENS"}
                   </div>
                   <div className="text-sm text-gray-600">Total Supply</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <Users className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                  <Users className="w-8 h-8 mx-auto mb-2 text-black" />
                   <div className="text-lg font-bold">{form.tokensPerClaim || "0"} per claim</div>
                   <div className="text-sm text-gray-600">Tokens per Claim</div>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                  <Calendar className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                  <Calendar className="w-8 h-8 mx-auto mb-2 text-black" />
                   <div className="text-lg font-bold">{form.enableExpiration ? "Limited Time" : "No Expiry"}</div>
                   <div className="text-sm text-gray-600">Campaign Duration</div>
                 </div>

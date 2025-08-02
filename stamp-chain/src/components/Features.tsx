@@ -5,18 +5,17 @@ interface FeaturesCardType {
     cardTitle: string,
     cardDescription: string,
     icon: React.ReactNode,
-    iconBackgroundGradient: string
 }
 
 const iconStyles = "w-6 h-6 text-white" as const
 
-const FeaturesCard = ({ cardTitle, cardDescription, icon, iconBackgroundGradient } : FeaturesCardType) => {
+const FeaturesCard = ({ cardTitle, cardDescription, icon } : FeaturesCardType) => {
     return(
         <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <CardHeader>
-              <div className={`w-12 h-12 bg-gradient-to-br rounded-lg flex items-center justify-center mb-4 ${iconBackgroundGradient}`}>
+              <div className={`w-12 h-12 bg-gradient-to-br bg-[#00005] rounded-lg flex items-center justify-center mb-4`}>
                 {icon}
-                <Coins className="w-6 h-6 text-white" />
+                <Coins className="w-6 h-6 text-black" />
               </div>
               <CardTitle>{cardTitle}</CardTitle>
               <CardDescription>
@@ -32,37 +31,31 @@ const FeaturesCardData : Array<FeaturesCardType> = [
         cardTitle: 'Custom Tokens',
         cardDescription: 'Create your own ERC-20 loyalty tokens with built-in supply caps and security features.',
         icon: <Coins className={iconStyles} />,
-        iconBackgroundGradient: 'from-blue-500 to-blue-600'
     },
     {
         cardTitle: 'QR Code Generation',
         cardDescription: 'Generate unique, secure QR codes for campaigns with one-time use protection and expiration dates.',
         icon: <QrCode className={iconStyles} />,
-        iconBackgroundGradient: 'from-purple-500 to-purple-600'
     },
     {
         cardTitle: 'Fraud Prevention',
         cardDescription: 'Built-in protection against double claims, wallet limits, and QR code abuse.',
         icon: <Shield className={iconStyles} />,
-        iconBackgroundGradient: 'from-blue-500 to-purple-600'
     },
     {
         cardTitle: 'Multi-Wallet Support',
         cardDescription: 'Connect with MetaMask, Phantom, WalletConnect, and other popular wallet providers.',
         icon: <Users className={iconStyles} />,
-        iconBackgroundGradient: 'from-purple-500 to-blue-600'
     },
     {
         cardTitle: 'Analytics Dashboard',
         cardDescription: 'Track claims, monitor campaign performance, and analyze user engagement in real-time.',
         icon: <BarChart3 className={iconStyles} />,
-        iconBackgroundGradient: 'from-blue-600 to-purple-500'
     },
     {
         cardTitle: 'Instant Deployment',
         cardDescription: 'Launch your loyalty program in minutes, not weeks. No coding or blockchain knowledge required.',
         icon: <Zap className={iconStyles} />,
-        iconBackgroundGradient: 'from-purple-600 to-blue-500'
     },
 ] as const
 
@@ -70,13 +63,12 @@ export const Features = () => {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
-            FeaturesCardData.map(({ cardTitle, icon, cardDescription, iconBackgroundGradient }) => (
+            FeaturesCardData.map(({ cardTitle, icon, cardDescription }) => (
                 <FeaturesCard 
                     key={crypto.randomUUID()}
                     cardTitle={cardTitle}
                     cardDescription={cardDescription}
                     icon={icon}
-                    iconBackgroundGradient={iconBackgroundGradient}
                 />
             ))
         }

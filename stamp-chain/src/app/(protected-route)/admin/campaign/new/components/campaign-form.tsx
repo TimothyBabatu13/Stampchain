@@ -15,7 +15,7 @@ const CampaignForm = () => {
     <Card className="border-0 shadow-lg">
         <CardHeader>
             <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
                   <Target className="w-4 h-4 text-white" />
                 </div>
                 <div>

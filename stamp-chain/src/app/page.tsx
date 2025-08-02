@@ -11,8 +11,8 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="text-center max-w-4xl mx-auto">
-          <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-200">🧠 Loyalty-as-a-Service</Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <Badge className="mb-4 bg-blue-100 text-black hover:bg-blue-200">🧠 Loyalty-as-a-Service</Badge>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r text-black bg-clip-text ">
             Tokenized Loyalty Programs Made Simple
           </h1>
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
@@ -69,7 +69,7 @@ const LandingPage = () => {
             <Link href="/admin/campaign/new">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                variant={'outline'}
               >
                 Create Your First Campaign
                 <ArrowRight className="w-5 h-5 ml-2" />

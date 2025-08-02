@@ -19,10 +19,10 @@ const CampaignSuccess = async ({ searchParams }: { searchParams: Promise<{ id?: 
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-4 bg-black bg-clip-text text-transparent">
             Campaign Created Successfully!
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -31,7 +31,7 @@ const CampaignSuccess = async ({ searchParams }: { searchParams: Promise<{ id?: 
         </div>
 
         
-        <Card className="border-0 shadow-lg mb-8 bg-gradient-to-br from-blue-50 to-purple-50">
+        <Card className="border-0 shadow-lg mb-8 ">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Coins className="w-6 h-6" />
@@ -52,7 +52,7 @@ const CampaignSuccess = async ({ searchParams }: { searchParams: Promise<{ id?: 
             <Link href="/qr-generator">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                variant={'outline'}
               >
                 <QrCode className="w-5 h-5 mr-2" />
                 Generate QR Codes

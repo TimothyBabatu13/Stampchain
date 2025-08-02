@@ -122,7 +122,7 @@ export const TokenClaim = async ({ id } : {
 
     return(
       <>
-      <div className="text-2xl font-bold text-purple-600 mb-1">{tokenClaim()} per claim</div>
+      <div className="text-2xl font-bold text-black mb-1">{tokenClaim()} per claim</div>
       <ClientRenderedSonner errorMessage={errorMessage} isVisible={errorOccured}/>
       </>
     )
