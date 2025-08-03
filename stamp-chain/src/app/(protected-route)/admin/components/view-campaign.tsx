@@ -178,7 +178,9 @@ const Campaign = async () => {
                 <p className="text-gray-600">Manage your loyalty campaigns and track performance</p>
               </div>
               <Link href="/admin/campaign/new">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Button
+                  variant={'default'}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Campaign
                 </Button>
