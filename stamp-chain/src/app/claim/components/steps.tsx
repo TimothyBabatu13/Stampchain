@@ -24,23 +24,23 @@ export const Steps = () => {
           <div className="flex items-center justify-center space-x-4 mb-4">
             <div
               className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                step >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                step >= 1 ? "bg-black text-white" : "bg-gray-200 text-gray-600"
               }`}
             >
               1
             </div>
-            <div className={`h-1 w-16 ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`} />
+            <div className={`h-1 w-16 ${step >= 2 ? "bg-black" : "bg-gray-200"}`} />
             <div
               className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                step >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                step >= 2 ? "bg-black text-white" : "bg-gray-200 text-gray-600"
               }`}
             >
               2
             </div>
-            <div className={`h-1 w-16 ${step >= 3 ? "bg-blue-600" : "bg-gray-200"}`} />
+            <div className={`h-1 w-16 ${step >= 3 ? "bg-black" : "bg-gray-200"}`} />
             <div
               className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                step >= 3 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
+                step >= 3 ? "bg-black text-white" : "bg-gray-200 text-gray-600"
               }`}
             >
               3

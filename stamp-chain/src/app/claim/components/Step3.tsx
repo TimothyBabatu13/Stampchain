@@ -10,15 +10,15 @@ const Step3 = () => {
   return (
     <Card className="border-0 shadow-lg">
             <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-green-600">Tokens Claimed Successfully!</CardTitle>
+              <CardTitle className="text-black">Tokens Claimed Successfully!</CardTitle>
               <CardDescription>Your loyalty tokens have been sent to your wallet</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg">
-                <div className="text-4xl font-bold text-green-600 mb-2">
+              <div className="text-center p-6 border  rounded-lg">
+                <div className="text-4xl font-bold text-black mb-2">
                   +{campaignData?.tokensPerClaim} {campaignData?.tokenSymbol}
                 </div>
                 <div className="text-sm text-gray-600">Added to your wallet</div>
@@ -36,13 +36,15 @@ const Step3 = () => {
                   onClick={() => {
                     setStep(1)
                   }}
-                  variant="outline"
+                  variant="default"
                   className="w-full"
                 >
                   Claim More Tokens
                 </Button>
                 <Link href="/">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button className="w-full"
+                    variant={'outline'}
+                  >
                     Back to Home
                   </Button>
                 </Link>

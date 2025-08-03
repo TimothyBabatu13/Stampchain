@@ -47,7 +47,7 @@ const Step1 = () => {
   return (
     <Card className="border-0 shadow-lg">
       <CardHeader className="text-center">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-black rounded-lg flex items-center justify-center mx-auto mb-4">
           <QrCode className="w-8 h-8 text-white" />
         </div>
         <CardTitle>Claim Your Rewards</CardTitle>
@@ -69,7 +69,8 @@ const Step1 = () => {
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="w-full "
+            variant={'default'}
             disabled={isLoading}
           >
             {isLoading ? (
