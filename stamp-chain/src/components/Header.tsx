@@ -1,5 +1,5 @@
 'use client';
-import { ArrowLeft, ArrowRight, Plus, QrCode, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowRight, Plus, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "./ui/button"
 import { usePathname } from "next/navigation";
@@ -93,12 +93,14 @@ const Header = () => {
               <Logo />
             </div>
             <div className="flex items-center gap-6">
-              <Link href="/admin/campaign/new">
+              <Link 
+                href="/admin/campaign/new"
+              >
                 <Button 
                   variant={'outline'}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Campaign
+                  <Plus className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">New Campaign</span>
                 </Button>
               </Link>
               <LogOutButton />
@@ -113,22 +115,15 @@ const Header = () => {
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+            <Link 
+              href="/admin" 
+              className="flex items-center md:gap-2 text-gray-600 hover:text-gray-900"
+            >
               <ArrowLeft className="w-5 h-5" />
-              Back to Dashboard
+              <span className="hidden md:inline">Back to Dashboard</span>
             </Link>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-black bg-clip-text text-transparent">
-              New Campaign
-            </span>
-          </div>
           <LogOutButton/>
-          </div>
         </div>
       </header>
     )
@@ -152,22 +147,12 @@ const Header = () => {
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <Link href="/admin" className="flex items-center md:gap-2 text-gray-600 hover:text-gray-900">
                 <ArrowLeft className="w-5 h-5" />
-                Back to Dashboard
+                <span className="hidden md:inline">Back to Dashboard</span>
               </Link>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br bg-black rounded-lg flex items-center justify-center">
-                  <QrCode className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r bg-black bg-clip-text text-transparent">
-                  QR Generator
-                </span>
-              </div>
-              <LogOutButton />
-            </div>
+            <LogOutButton />
           </div>
         </header>
       )

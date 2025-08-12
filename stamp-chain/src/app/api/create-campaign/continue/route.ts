@@ -27,6 +27,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const { signedTx, mintPublicKey } = data;
+    console.log(signedTx, mintPublicKey)
     const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
   
     try {

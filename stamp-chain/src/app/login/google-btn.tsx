@@ -33,6 +33,7 @@ const GoogleSignInBtn = () => {
     }
     createAccount();
   }, [session])
+  
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
