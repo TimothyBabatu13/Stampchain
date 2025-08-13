@@ -86,6 +86,45 @@ export const RedirectCards = () => {
     )
 }
 
+const AddictionalCard = () => {
+  const data = [
+    {
+      title: `Generate and Distribute QR Codes`,
+      body: `Create QR codes and place them on receipts, social media, or at events`
+    },
+    {
+      title: `Share Claim Instructions`,
+      body: `Tell your community how to scan QR codes and claim their tokens`
+    },
+    {
+      title: `Monitor and Optimize`,
+      body: `Track claim rates and adjust your strategy for maximum engagement`
+    }
+   ]
+
+   return (
+    <div className="space-y-4">
+      {
+        data.map((item, index) => (
+        <div 
+          key={crypto.randomUUID()} 
+          className="flex items-start gap-3 p-4 shadow rounded-lg"
+        >
+          <Badge className="bg-black text-white">{index + 1}</Badge>
+          <div>
+            <h4 className="font-medium">{item.title}</h4>
+            <p className="text-sm text-gray-600 mt-1">
+              {item.body}
+            </p>
+          </div>
+        </div>
+        ))
+      }
+      
+    </div>
+   )
+}
+
 export const AdditionalActionsCard = () => {
     return(
         <Card className="border-0 shadow-lg">
@@ -94,37 +133,7 @@ export const AdditionalActionsCard = () => {
             <CardDescription>Here are some recommended next steps to maximize your campaign&apos;s success</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
-                <Badge className="bg-black text-white">1</Badge>
-                <div>
-                  <h4 className="font-medium">Generate and Distribute QR Codes</h4>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Create QR codes and place them on receipts, social media, or at events
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg">
-                <Badge className="bg-black text-white">2</Badge>
-                <div>
-                  <h4 className="font-medium">Share Claim Instructions</h4>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Tell your community how to scan QR codes and claim their tokens
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg">
-                <Badge className="bg-black text-white">3</Badge>
-                <div>
-                  <h4 className="font-medium">Monitor and Optimize</h4>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Track claim rates and adjust your strategy for maximum engagement
-                  </p>
-                </div>
-              </div>
-            </div>
+            <AddictionalCard />
           </CardContent>
         </Card>
     )

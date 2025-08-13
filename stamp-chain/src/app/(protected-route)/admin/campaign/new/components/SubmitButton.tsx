@@ -52,7 +52,7 @@ const SubmitButton = () => {
       const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));
 
       const signedTx = await signTransaction!(tx);
-      console.log(signedTx)
+
       const completeCampaignDataTransactiom = await fetch("/api/create-campaign/continue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,7 +63,8 @@ const SubmitButton = () => {
       });
 
       const result = await completeCampaignDataTransactiom.json();
-      console.log(result);
+
+      setIsLoading(false)
       if (result.success) {
         router.push(result.url)
       }
@@ -71,14 +72,8 @@ const SubmitButton = () => {
       const err = error as Error
       toast.error(`An error occured ${err.message}`)
       console.error(err);
-    } finally {
       setIsLoading(false)
-    }
-
-
-
-
-
+    } 
 
     // const createForm = {
     //   id: crypto.randomUUID(),
