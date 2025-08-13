@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const { signedTx, mintPublicKey } = data;
-    console.log(signedTx, mintPublicKey)
+
     const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
   
     try {
@@ -35,12 +35,13 @@ export const POST = async (req: NextRequest) => {
         const signature = await connection.sendRawTransaction(tx.serialize())
         await connection.confirmTransaction(signature)
         const supabase = createClient();
+        
         const { data, error } = await supabase
         .from('token_mints')
         .select('id')
         .eq('mint_address', mintPublicKey)
         .single()
-        
+
         if(error){
             return NextResponse.json({
                 success: false,

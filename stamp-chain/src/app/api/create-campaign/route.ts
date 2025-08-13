@@ -51,7 +51,6 @@ export const POST = async (req: NextRequest) => {
       userPubkey
     )
 
-    
     const lamports = await getMinimumBalanceForRentExemptMint(connection);
 
     const createAccountIx = SystemProgram.createAccount({
@@ -96,7 +95,7 @@ export const POST = async (req: NextRequest) => {
 
   // Backend signs with mint key
     tx.partialSign(mintAuthority);
-    
+
     const { data, error } = await superbase.from('token_mints').insert({
       mint_address: mintAuthority.publicKey.toBase58(),
       mint_secret_key: Array.from(mintAuthority.secretKey),
@@ -106,8 +105,8 @@ export const POST = async (req: NextRequest) => {
       description,
       symbol: tokenSymbol,
       initial_supply: totalSupply,
-      maxClaimsPerWallet,
-      tokensPerClaim
+      maxclaimsperwallet: maxClaimsPerWallet,
+      tokensperclaim: tokensPerClaim
     })
     
 

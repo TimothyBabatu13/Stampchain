@@ -21,13 +21,13 @@ interface fetchDataType {
 
 const fetchData = async (mintPublicKey:string, creator_email: string): Promise<fetchDataType> => {
   try {
-    
     const supabase = createClient();
+  
     const { data, error } = await supabase
     .from('token_mints')
     .select('id, mint_address, symbol, initial_supply, maxclaimsperwallet, tokensperclaim')
-    .eq('mint_address', mintPublicKey)
     .eq('creator_email', creator_email)
+    .eq('id', mintPublicKey)
     .single()
     
     if(error){
@@ -52,7 +52,6 @@ export const TotalSupply = async ({ id } : {
   id: string
 }) => {
 
-  
   const session = await getServerSession();
   
   if(!session){
@@ -61,7 +60,7 @@ export const TotalSupply = async ({ id } : {
 
   let errorMessage = '';
   let errorOccured = false
-  
+
   const { data, error, success } = await fetchData(id, session.user!.email!)
 
   if(!success && typeof error === 'string'){
@@ -83,7 +82,7 @@ export const TotalSupply = async ({ id } : {
     const symbol = data?.symbol
   return (
     <>
-      <div className="text-2xl font-bold text-blue-600 mb-1">{tokenSupply()} {symbol}</div>
+      <div className="text-2xl font-bold text-black mb-1">{tokenSupply()} {symbol}</div>
       <ClientRenderedSonner errorMessage={errorMessage} isVisible={errorOccured}/>
     </>
   )
