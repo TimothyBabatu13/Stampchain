@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
 
     const body = await req.json();
     const validatedBody = ClaimTokenValidation.safeParse(body);
-
+    
     if(validatedBody.error){
         return NextResponse.json({
             success: false,
@@ -25,6 +25,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     const { token } = validatedBody.data;
+    
     const supabase = createClient();
     try {
         const {  error, data } = await supabase
@@ -53,7 +54,7 @@ export const POST = async (req: NextRequest) => {
         
         return NextResponse.json({
             success: true,
-            data: [],
+            data: result.campaign_id,
             error: false
         })
     } catch (error) {

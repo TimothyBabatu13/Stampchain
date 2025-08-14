@@ -10,7 +10,9 @@ interface ClaimStore {
     step: number,
     setStep: (value: number) => void,
     claimData: typeof mockCampaignData | null,
-    setClaimData: (value: typeof mockCampaignData | null) => void
+    setClaimData: (value: typeof mockCampaignData | null) => void,
+    id: string | null,
+    setId: (value: string) => void
 }
 
 export const useClaimStore = create<ClaimStore>((set) => ({
@@ -18,8 +20,12 @@ export const useClaimStore = create<ClaimStore>((set) => ({
     setStep: (value) => {
         set({step: value})
     },
+    id: null,
     claimData: null,
     setClaimData: (value) => {
         set({claimData: value})
+    },
+    setId: (value) => {
+        set({id: value})
     }
 }))

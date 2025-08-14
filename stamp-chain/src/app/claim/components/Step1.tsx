@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useClaimStore } from "@/stores/claimStore"
 import { ArrowRight, Camera, Loader2, QrCode } from "lucide-react"
-import { useState } from "react"
+// import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 interface apiResponseType {
@@ -15,8 +16,18 @@ interface apiResponseType {
 
 const Step1 = () => {
   const setStep = useClaimStore(e => e.setStep)
+  const setId = useClaimStore(e => e.setId)
   const [claimToken, setClaimToken] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  
+
+  useEffect(()=>{
+    const url = window.location.href;
+    const tokenId = url.split('=')[1];
+    if(tokenId){
+      setClaimToken(tokenId)
+    }
+  }, [])
 
   const handleTokenSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,11 +39,12 @@ const Step1 = () => {
         body: JSON.stringify({token: claimToken})
       })
       const result = await api.json() as apiResponseType;
-      console.log(result)
-      // if(!result.success && typeof result.error === 'string'){
-      //   toast.error(result.error)
-      //   return
-      // }
+      
+      if(!result.success && typeof result.error === 'string'){
+        toast.error(result.error)
+        return
+      }
+      setId(result.data!)
       setStep(2);
       setIsLoading(false)
     } catch (error) {

@@ -18,7 +18,6 @@ export const downloadQRCode = async (qrCode: {
     token: string; 
 }) => {
     const id = document.getElementById(`qr-code--${qrCode.id}`)!;
-    console.log(id)
     const dataUrl = await toPng(id);
 
     const link = document.createElement("a");

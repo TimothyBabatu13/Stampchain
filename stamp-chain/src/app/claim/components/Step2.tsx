@@ -2,20 +2,53 @@ import ConnectWallet from "@/components/connect-wallet"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { formatAddress } from "@/lib/format-address"
 import { useClaimStore } from "@/stores/claimStore"
 import { useLoadingStore } from "@/stores/loadingStore"
 import { useWalletStore } from "@/stores/walletStore"
 import { CheckCircle, Coins, Loader2, Wallet } from "lucide-react"
+import { useEffect } from "react"
+import { toast } from "sonner"
+
+interface Data  {
+  name: string,
+  tokenSymbol: string,
+  tokensPerClaim: number,
+  description: string,
+}
+
+interface Response {
+  success: boolean,
+  error: false | string,
+  data: Data
+}
+
+
 
 const Step2 = () => {
 
-    const { claimData, setStep} = useClaimStore();
+    const { claimData, setStep, setClaimData, id} = useClaimStore();
     const { wallet: wallets, walletAddress } = useWalletStore();
     const { setIsLoading, loading: isLoading } = useLoadingStore();
 
     const walletConnected = wallets ? true : false
-        
+    
+    useEffect(()=>{
+      const fetchData = async () => {
+        const api = await fetch('api/fetch-claim-qr-details',{
+          method: "POST",
+          body: JSON.stringify(id)
+        });
+        const res = await api.json() as Response;
+        if(!res.success && typeof res.error === 'string'){
+          toast.error(res.error);
+          return
+        }
+        setClaimData(res.data)
+      }
+      fetchData();
+    }, [])
     const handleClaim = async () => {
 
       setIsLoading(true)
@@ -42,14 +75,26 @@ const Step2 = () => {
         <CardHeader className="text-center">
                 <CardTitle className="flex items-center justify-center gap-2">
                   <Coins className="w-6 h-6" />
-                  {claimData?.name}
+                  {
+                    claimData ? claimData.name : <Skeleton className="w-[50px] h-2 bg-black"/>  
+                  }
+                  
                 </CardTitle>
-                <CardDescription>{claimData?.description}</CardDescription>
+                <CardDescription>
+                  {claimData ? claimData.description : <Skeleton className="w-[50px] h-2 bg-black mx-auto"/>}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-1">
-                    {claimData?.tokensPerClaim} {claimData?.tokenSymbol}
+                    
+                    {claimData ? (<>
+                      {claimData.tokensPerClaim}
+                      {claimData?.tokenSymbol}
+                    </>) : (<div className="flex items-center justify-center gap-2">
+                      <Skeleton className="w-[50px] h-2 bg-black"/>
+                      <Skeleton className="w-[50px] h-2 bg-black"/>
+                    </div>)}
                   </div>
                   <div className="text-sm text-gray-600">Available to claim</div>
                 </div>
@@ -75,7 +120,7 @@ const Step2 = () => {
                       onClick={handleClaim}
                       className="w-full"
                       variant={'default'}
-                      disabled={isLoading || !wallets || !walletAddress}
+                      disabled={isLoading || !wallets || !walletAddress || !claimData}
                     >
                       {isLoading ? (
                         <>
@@ -84,7 +129,9 @@ const Step2 = () => {
                         </>
                       ) : (
                         <>
-                          Claim {claimData?.tokensPerClaim} {claimData?.tokenSymbol}
+                          Claim {
+                            claimData ? <>{claimData?.tokensPerClaim} {claimData?.tokenSymbol}</> : <Skeleton className="h-2 w-[50px] bg-black"/>
+                          }
                           <Coins className="w-4 h-4 ml-2" />
                         </>
                       )}
