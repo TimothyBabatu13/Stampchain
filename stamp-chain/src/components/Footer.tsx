@@ -8,6 +8,12 @@ const Footer = () => {
     const pathName = usePathname();
 
     if(pathName === '/login') return null
+    
+    const getYear = () : number => {
+      const date = new Date();
+      const year = date.getFullYear(); 
+      return year;
+    }
 
   return (
     <footer className="border-t bg-white/80 backdrop-blur-sm">
@@ -22,11 +28,11 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-gray-600">
-              <span>© 2024 Loyalty-as-a-Service</span>
-              <Link prefetch={false} href="/privacy" className="hover:text-gray-900 transition-colors">
+              <span>© {getYear()} Loyalty-as-a-Service</span>
+              <Link prefetch={false} href="" className="hover:text-gray-900 transition-colors">
                 Privacy
               </Link>
-              <Link prefetch={false} href="/terms" className="hover:text-gray-900 transition-colors">
+              <Link prefetch={false} href="" className="hover:text-gray-900 transition-colors">
                 Terms
               </Link>
             </div>
