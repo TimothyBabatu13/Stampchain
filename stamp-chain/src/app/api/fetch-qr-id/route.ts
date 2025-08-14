@@ -1,9 +1,17 @@
 import { createClient } from "@/config/supabase/supabase-server";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 
 export const POST = async (req: NextRequest) => {
- 
+    const session = await getServerSession()
+    if(!session) {
+        return NextResponse.json({
+            success: false,
+            error: 'You are logged out',
+            data: null
+    })
+    }
     const res =  await req.json() as string;
  
   try {
