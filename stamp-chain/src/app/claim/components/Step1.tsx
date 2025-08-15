@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useClaimStore } from "@/stores/claimStore"
 import { ArrowRight, Camera, Loader2, QrCode } from "lucide-react"
-// import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -15,8 +14,8 @@ interface apiResponseType {
 }
 
 const Step1 = () => {
-  const setStep = useClaimStore(e => e.setStep)
-  const setId = useClaimStore(e => e.setId)
+  const { setStep, setId, setUniqueId } = useClaimStore()
+  
   const [claimToken, setClaimToken] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   
@@ -31,7 +30,8 @@ const Step1 = () => {
 
   const handleTokenSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!claimToken.trim()) return
+    if (!claimToken.trim()) return  
+    setUniqueId(claimToken)
     setIsLoading(true)
     try {
       const api = await fetch('/api/claim', {

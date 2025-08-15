@@ -28,7 +28,7 @@ interface Response {
 
 const Step2 = () => {
 
-    const { claimData, setStep, setClaimData, id} = useClaimStore();
+    const { claimData, setClaimData, id, uniqueId} = useClaimStore();
     const { wallet: wallets, walletAddress } = useWalletStore();
     const { setIsLoading, loading: isLoading } = useLoadingStore();
 
@@ -50,16 +50,16 @@ const Step2 = () => {
       fetchData();
     }, [])
     const handleClaim = async () => {
-
+      console.log(uniqueId)
       setIsLoading(true)
       try {  
         const api = await fetch('/api/claim/to-wallet', {
           method: 'POST',
-          body: JSON.stringify({wallet: 'solana', walletAddress, token: "ooaoaso"})
+          body: JSON.stringify({wallet: 'solana', walletAddress, tokenId: id!, uniqueId: uniqueId!})
         })
         const response = await api.json();
         console.log(response)
-        console.log(setStep(3))
+        // console.log(setStep(3))
       } catch (error) {
         console.log(error)
       }
@@ -86,7 +86,7 @@ const Step2 = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">
+                  <div className="text-3xl font-bold text-black mb-1">
                     
                     {claimData ? (<>
                       {claimData.tokensPerClaim}

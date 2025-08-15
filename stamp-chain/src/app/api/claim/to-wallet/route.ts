@@ -1,6 +1,8 @@
 
 import { createClient } from "@/config/supabase/supabase-server";
 import { ClaimTokenToAddress } from "@/validations/claim-token-validation";
+import { getOrCreateAssociatedTokenAccount, transfer } from "@solana/spl-token";
+import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { NextRequest, NextResponse } from "next/server"
 
 interface dataTpe {
@@ -15,7 +17,7 @@ interface dataTpe {
 export const POST = async (req: NextRequest) => {
     const body = await req.json();    
     const { success, data, error } = ClaimTokenToAddress.safeParse(body);
-
+    
     if(!success){
         return NextResponse.json({
             success: false,
@@ -24,13 +26,15 @@ export const POST = async (req: NextRequest) => {
         })
     }
 
-    const { token, wallet, walletAddress } = data
+    const { tokenId, wallet, walletAddress, uniqueId } = data
+ 
     const supabase = createClient();
+
     try {
-        const {  error, data } = await supabase
+        const { error, data } = await supabase
         .from('qr_codes')
         .select('*')
-        .eq('unique_code', token)
+        .eq('unique_code', uniqueId)
         .maybeSingle()
         
         if(error) {
@@ -40,7 +44,6 @@ export const POST = async (req: NextRequest) => {
                 error: error.message
             })
         }
-        
         const result = data as dataTpe
         
         if(result.used) {
@@ -51,19 +54,53 @@ export const POST = async (req: NextRequest) => {
             })
         }
 
-        const {} = await supabase
-        .from('')
-        .select('*')
+        const {data: tokenData, error: tokenError} = await supabase
+        .from('token_mints')
+        .select('mint_secret_key, mint_address, tokensperclaim')
+        .eq('id', tokenId)
+        .maybeSingle()
 
-        //send token here
+        if(tokenError){
+            return NextResponse.json({
+                success: false,
+                data: [],
+                error: 'There was an error fetching data from token mints'
+            })
+        }
+
+        const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+        const secretKey = Uint8Array.from(tokenData?.mint_secret_key)
+        const sender = Keypair.fromSecretKey(secretKey);
         
+        const recipient = new PublicKey(walletAddress);
+        const tokenMint = new PublicKey(tokenData?.mint_address);
+        
+        console.log('transferring token...');
+        const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
+            connection, sender, tokenMint, sender.publicKey
+        )
+        const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, sender, tokenMint, recipient);
+        const amount = Number(tokenData?.tokensperclaim) * 10 ** 9;
+        
+        const signnature = await transfer(
+            connection,
+            sender,
+            senderTokenAccount.address,
+            recipientTokenAccount.address,
+            sender.publicKey,
+            amount
+        )
+
+        console.log(`transfer succesful,`+ signnature)
+
         return NextResponse.json({
             success: true,
             error: false,
             data: [{
-                token,
+                tokenId,
                 wallet,
-                walletAddress
+                walletAddress,
+                signnature
             }]
         })    
     } catch (error) {
