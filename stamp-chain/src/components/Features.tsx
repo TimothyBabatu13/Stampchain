@@ -44,7 +44,7 @@ const FeaturesCardData : Array<FeaturesCardType> = [
     },
     {
         cardTitle: 'Multi-Wallet Support',
-        cardDescription: 'Connect with MetaMask, Phantom, WalletConnect, and other popular wallet providers.',
+        cardDescription: 'Connect with Phantom, WalletConnect, and other popular wallet providers.',
         icon: <Users className={iconStyles} />,
     },
     {

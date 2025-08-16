@@ -7,10 +7,11 @@ interface requestType {
 }
 
 export const POST = async (req: NextRequest) => {
+
     const body = await req.json() as requestType;
     const email = body.email;
-
     const supabase = createClient();
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data: existingUser, error: _selectError } = await supabase
     .from('users')
@@ -26,7 +27,7 @@ export const POST = async (req: NextRequest) => {
     
     const server_wallet = mintAuthority.publicKey.toString();
     const server_key = mintAuthority.secretKey;
-    console.log(server_wallet, server_key)
+   
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data: _newUser, error: insertError } = await supabase
     .from('users')

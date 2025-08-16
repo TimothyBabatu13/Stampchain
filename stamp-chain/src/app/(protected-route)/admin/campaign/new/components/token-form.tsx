@@ -70,8 +70,8 @@ const TokenForm = () => {
                     <SelectValue placeholder="Select blockchain" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ethereum">Ethereum (ERC-20)</SelectItem>
-                    <SelectItem value="polygon">Polygon (ERC-20)</SelectItem>
+                    {/* <SelectItem value="ethereum">Ethereum (ERC-20)</SelectItem> */}
+                    {/* <SelectItem value="polygon">Polygon (ERC-20)</SelectItem> */}
                     <SelectItem value="solana">Solana (SPL)</SelectItem>
                     <SelectItem value="base">Base (ERC-20)</SelectItem>
                   </SelectContent>

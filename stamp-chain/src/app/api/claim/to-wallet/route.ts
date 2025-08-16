@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest) => {
         
         const recipient = new PublicKey(walletAddress);
         const tokenMint = new PublicKey(tokenData?.mint_address);
-        
+        console.log(sender.publicKey.toBase58())
         console.log('transferring token...');
         const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
             connection, sender, tokenMint, sender.publicKey
@@ -105,7 +105,12 @@ export const POST = async (req: NextRequest) => {
         })    
     } catch (error) {
         console.log(error)
+        const err = error as Error;
+        return NextResponse.json({
+            error: err.message,
+            success:false,
+            data: null
+        })
     }
-
     
 }

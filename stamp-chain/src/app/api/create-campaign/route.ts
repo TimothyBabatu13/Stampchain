@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   Connection,
   Keypair,
-  PublicKey,
+  // PublicKey,
   SystemProgram,
   Transaction,
   clusterApiUrl,
+  sendAndConfirmTransaction,
 } from '@solana/web3.js'
+
 import {
   createAssociatedTokenAccountInstruction,
   createInitializeMintInstruction,
@@ -40,61 +42,141 @@ export const POST = async (req: NextRequest) => {
   const mintAuthority = Keypair.generate();
   const superbase = createClient();
   
-  const { name, decimals, tokenSymbol, totalSupply, walletAddress, description, maxClaimsPerWallet, tokensPerClaim,  } = validationResult.data
+  const { name, 
+    decimals, 
+    tokenSymbol, 
+    totalSupply, 
+    // walletAddress,
+    description,
+    maxClaimsPerWallet, 
+    tokensPerClaim,  
+    } = validationResult.data
 
   try {
 
-    const userPubkey = new PublicKey(walletAddress);
+    const {data: getServerWalletData, error: getServerWalletError} = await superbase
+    .from('users')
+    .select('server_wallet, server_key')
+    .eq('email', session.user?.email)
+    .maybeSingle()
 
-    const ata = await getAssociatedTokenAddress(
-      mintAuthority.publicKey,
-      userPubkey
-    )
+    
+    console.log(getServerWalletData)
 
-    const lamports = await getMinimumBalanceForRentExemptMint(connection);
-
-    const createAccountIx = SystemProgram.createAccount({
-      fromPubkey: userPubkey,
-      newAccountPubkey: mintAuthority.publicKey,
-      space: MINT_SIZE,
-      lamports,
-      programId: TOKEN_PROGRAM_ID
-    });
+    if(getServerWalletError){
+      console.log(getServerWalletError.message)
+    }
+    const secretText = getServerWalletData?.server_key as string
+    const secretArray = secretText.split(",").map((num) => parseInt(num.trim()));
+    const secretKey = new Uint8Array(secretArray);
+    const keypair = Keypair.fromSecretKey(secretKey);
   
-    const initMintIx = createInitializeMintInstruction(
+    // const userPubkey = new PublicKey(walletAddress);
+
+    const rentLamports = await getMinimumBalanceForRentExemptMint(connection);
+
+    const createMintAccountIx = SystemProgram.createAccount({
+      fromPubkey: keypair.publicKey, // payer
+      newAccountPubkey: mintAuthority.publicKey,   // the mint account
+      space: MINT_SIZE,
+      lamports: rentLamports,
+      programId: TOKEN_PROGRAM_ID,
+    });
+
+
+    const initializeMintIx = createInitializeMintInstruction(
       mintAuthority.publicKey,
       Number(decimals),
-      userPubkey, 
-      userPubkey,
-      TOKEN_PROGRAM_ID
+      keypair.publicKey, // mint authority
+      keypair.publicKey  // freeze authority (you can make this null if desired)
     );
-  
 
-    const createAtaIx = createAssociatedTokenAccountInstruction(
-      userPubkey,
-      ata,
-      userPubkey,
-      mintAuthority.publicKey
+     const serverAta = await getAssociatedTokenAddress(
+      mintAuthority.publicKey,
+      keypair.publicKey
     );
+
+     const createServerAtaIx = createAssociatedTokenAccountInstruction(
+      keypair.publicKey, // payer
+      serverAta,              // ATA address
+      keypair.publicKey, // owner
+      mintAuthority.publicKey          // mint
+    );
+
+    const supplyBig = BigInt(String(totalSupply));
+    const amountInBaseUnits = supplyBig * BigInt(10) ** BigInt(Number(decimals));
 
     const mintToIx = createMintToInstruction(
       mintAuthority.publicKey,
-      ata,
-      userPubkey,
-      Number(totalSupply) * (10 ** Number(decimals)),
-      [],
-      TOKEN_PROGRAM_ID
+      serverAta,
+      keypair.publicKey,        // mint authority
+      Number(amountInBaseUnits),     // SPL helpers accept number; safe if <= Number.MAX_SAFE_INTEGER
+      []                             
     );
-    
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    
-    const tx = new Transaction({
-      feePayer: userPubkey,blockhash,
-      lastValidBlockHeight
-    }).add(createAccountIx, initMintIx, createAtaIx, mintToIx);
 
-  // Backend signs with mint key
-    tx.partialSign(mintAuthority);
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+    const tx = new Transaction({
+      feePayer: keypair.publicKey,
+      blockhash,
+      lastValidBlockHeight,
+    }).add(createMintAccountIx, initializeMintIx, createServerAtaIx, mintToIx);
+
+    const signature = await sendAndConfirmTransaction(connection, tx, [
+      keypair, // pays fees & is mint authority
+      mintAuthority,         // signs because we created the mint account
+    ]);
+
+    
+  //   const ata = await getAssociatedTokenAddress(
+  //     mintAuthority.publicKey,
+  //     userPubkey
+  //   )
+
+  //   const lamports = await getMinimumBalanceForRentExemptMint(connection);
+
+  //   const createAccountIx = SystemProgram.createAccount({
+  //     fromPubkey: userPubkey,
+  //     newAccountPubkey: mintAuthority.publicKey,
+  //     space: MINT_SIZE,
+  //     lamports,
+  //     programId: TOKEN_PROGRAM_ID
+  //   });
+  
+  //   const initMintIx = createInitializeMintInstruction(
+  //     mintAuthority.publicKey,
+  //     Number(decimals),
+  //     userPubkey, 
+  //     userPubkey,
+  //     TOKEN_PROGRAM_ID
+  //   );
+  
+
+  //   const createAtaIx = createAssociatedTokenAccountInstruction(
+  //     userPubkey,
+  //     ata,
+  //     userPubkey,
+  //     mintAuthority.publicKey
+  //   );
+
+  //   const mintToIx = createMintToInstruction(
+  //     mintAuthority.publicKey,
+  //     ata,
+  //     userPubkey,
+  //     Number(totalSupply) * (10 ** Number(decimals)),
+  //     [],
+  //     TOKEN_PROGRAM_ID
+  //   );
+    
+  //   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    
+  //   const tx = new Transaction({
+  //     feePayer: userPubkey,blockhash,
+  //     lastValidBlockHeight
+  //   }).add(createAccountIx, initMintIx, createAtaIx, mintToIx);
+
+  // // Backend signs with mint key
+  //   tx.partialSign(mintAuthority);
 
     const { data, error } = await superbase.from('token_mints').insert({
       mint_address: mintAuthority.publicKey.toBase58(),
@@ -116,7 +198,11 @@ export const POST = async (req: NextRequest) => {
     
     return NextResponse.json({
       success: true,
-      validationError: false,
+      error: false,
+      txid: signature,
+      explorer: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+      // https://solscan.io/
+      // url: `/admin/campaign/success?id=${data.id}`,
       unsignedTx: tx.serialize({
         requireAllSignatures: false,
       }).toString('base64'),

@@ -162,12 +162,12 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Logo />
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
+          <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
             Features
-          </Link>
-          <Link href="#use-cases" className="text-gray-600 hover:text-gray-900 transition-colors">
+          </a>
+          <a href="#use-cases" className="text-gray-600 hover:text-gray-900 transition-colors">
             Use Cases
-          </Link>
+          </a>
         </nav>
         <div className="flex items-center gap-3">
           {

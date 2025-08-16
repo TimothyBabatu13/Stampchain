@@ -47,6 +47,7 @@ const SubmitButton = () => {
         console.log(resultOfSendCampaignData.error)
         return
       }
+      console.log(resultOfSendCampaignData)
       const { unsignedTx, mintPublicKey } = resultOfSendCampaignData;
 
       const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));
@@ -66,7 +67,8 @@ const SubmitButton = () => {
 
       setIsLoading(false)
       if (result.success) {
-        router.push(result.url)
+        toast.success('Campaign created.')
+        router.push(result.url);
       }
     } catch (error) {
       const err = error as Error

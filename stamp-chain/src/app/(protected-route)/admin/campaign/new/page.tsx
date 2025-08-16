@@ -7,7 +7,7 @@ import SubmitButton from "./components/SubmitButton"
 import CampaignPreview from "./components/campaign-preview"
 import ConnectWallet from "@/components/connect-wallet"
 
-export default function NewCampaign() {
+const NewCampaign = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -18,18 +18,12 @@ export default function NewCampaign() {
         </div>
 
         <form className="space-y-8">
-          {/* Basic Information */}
+         
           <CampaignForm />
-
-          {/* Token Configuration */}
           <TokenForm />
-          {/* Security & Limits */}
           <ExpiryForm />
-
-          {/* Campaign Preview */}
           <CampaignPreview />
 
-          {/* Submit Button */}
           <div className="flex justify-end gap-4">
             <Link href="/admin">
               <Button variant="outline">Cancel</Button>
@@ -42,3 +36,5 @@ export default function NewCampaign() {
     </div>
   )
 }
+
+export default NewCampaign;
