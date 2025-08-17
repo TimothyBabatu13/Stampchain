@@ -24,13 +24,14 @@ export type TokenMint = {
   maxclaimsperwallet: string | number;
   tokensperclaim: string | number;
   qrCodes: number,
-  tokens_claimed: string
+  tokens_claimed: string,
+  claimCount: number
 };
 
 type fetchDataType = {
   success: boolean,
   data: [] | Array<TokenMint>,
-  error: string | boolean
+  error: string | boolean,
 }
 
 type QRCountData = {
@@ -45,7 +46,8 @@ type QRCountData = {
 type QRCountResponse = {
   success: boolean,
   data: [] | QRCountData[],
-  error: string | boolean
+  error: string | boolean,
+  numberOfTotalClaims: number
 }
 
   const fetchData = async (email: string): Promise<fetchDataType> => {
@@ -78,12 +80,14 @@ type QRCountResponse = {
       const ids = data.map(async(datum) => {
         return fetchQrCount(datum.id)
       })
+
       const token_mints_data = data as Array<TokenMint>
       const result = await Promise.all(ids) as never as QRCountResponse[];
 
       const realData = token_mints_data.map((token, index) => ({
         ...token,
         qrCodes: result[index].data.length,
+        claimCount: result[index].numberOfTotalClaims,
       }))
 
       return {
@@ -119,11 +123,14 @@ type QRCountResponse = {
           error: error.message
         }
       }
-
+      
+      const numberOfTotalClaims = data.filter(i => i.used).length;
+      
       return {
         success: true,
         data,
-        error: false
+        error: false,
+        numberOfTotalClaims
       }
     } catch (error) {
       const err = error as Error;
@@ -135,6 +142,8 @@ type QRCountResponse = {
     }
     
   }
+
+  
 const Campaign = async () => {
   
   let error = false;
@@ -160,8 +169,11 @@ const Campaign = async () => {
     totalSupply: changeToNumber(campaign.initial_supply),
     claimed: changeToNumber(campaign.tokens_claimed),
     qrCodes: campaign.qrCodes,
-    createdAt: campaign.created_at
+    createdAt: campaign.created_at,
+    claimCount: campaign.claimCount,
+    tokensperclaim: changeToNumber(campaign.tokensperclaim)
   }))
+
 
   const isEmpty = data.length < 1;
 
@@ -238,7 +250,7 @@ const Campaign = async () => {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <div className="text-2xl font-bold text-blue-600">{campaign.claimed.toLocaleString()}</div>
+                        <div className="text-2xl font-bold text-blue-600">{(campaign.claimCount * campaign.tokensperclaim).toLocaleString()}</div>
                         <div className="text-sm text-gray-600">Tokens Claimed</div>
                       </div>
                       <div className="text-center p-4 bg-purple-50 rounded-lg">
@@ -248,16 +260,16 @@ const Campaign = async () => {
                         <div className="text-sm text-gray-600">Total Supply</div>
                       </div>
                       <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <div className="text-2xl font-bold text-green-600">{campaign.qrCodes}</div>
+                        <div className="text-2xl font-bold text-green-600">{campaign.qrCodes.toLocaleString()}</div>
                         <div className="text-sm text-gray-600">{campaign.qrCodes ? "QR Codes": "QR Code"}</div>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Campaign Progress</span>
-                        <span>{Math.round((campaign.claimed / campaign.totalSupply) * 100)}%</span>
+                        <span>{Math.round(((campaign.claimCount * campaign.tokensperclaim) / campaign.totalSupply) * 100)}%</span>
                       </div>
-                      <Progress value={(campaign.claimed / campaign.totalSupply) * 100} className="h-2" />
+                      <Progress value={((campaign.claimCount * campaign.tokensperclaim) / campaign.totalSupply) * 100} className="h-2" />
                     </div>
                   </CardContent>
                 </Card>
