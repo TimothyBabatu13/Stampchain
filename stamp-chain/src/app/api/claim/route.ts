@@ -42,10 +42,10 @@ export const POST = async (req: NextRequest) => {
                 error: error.message
             })
         }
-        console.log(data)
+        
 
         const result = data as dataTpe
-        console.log(result)
+        
         if(result.used) {
             return NextResponse.json({
                 success: false,

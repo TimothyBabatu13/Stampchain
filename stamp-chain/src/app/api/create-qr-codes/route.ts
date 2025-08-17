@@ -64,7 +64,8 @@ export const POST = async (req: NextRequest) => {
           if (insertError) {
             return NextResponse.json({
                 success: false,
-                error: "Failed to insert QR codes",data: null,
+                error: "Failed to insert QR codes",
+                data: null,
             });
         }
 

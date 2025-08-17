@@ -28,7 +28,7 @@ interface Response {
 
 const Step2 = () => {
 
-    const { claimData, setClaimData, id, uniqueId} = useClaimStore();
+    const { claimData, setClaimData, id, uniqueId, setStep} = useClaimStore();
     const { wallet: wallets, walletAddress } = useWalletStore();
     const { setIsLoading, loading: isLoading } = useLoadingStore();
 
@@ -64,9 +64,7 @@ const Step2 = () => {
           return;
         }
 
-        console.log(response.data)
-
-        console.log(response)
+        setStep(3);
         // console.log(setStep(3))
       } catch (error) {
         console.log(error)
