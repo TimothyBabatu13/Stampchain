@@ -1,8 +1,15 @@
 
 import { createClient } from "@/config/supabase/supabase-server";
+import { convertStringToSecretKey } from "@/util/convert-string-to-secretKey";
 import { ClaimTokenToAddress } from "@/validations/claim-token-validation";
 import { getOrCreateAssociatedTokenAccount, transfer } from "@solana/spl-token";
-import { clusterApiUrl, Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { 
+    clusterApiUrl, 
+    Connection, 
+    // Keypair, 
+    PublicKey 
+} from "@solana/web3.js";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server"
 
 interface dataTpe {
@@ -15,6 +22,7 @@ interface dataTpe {
 }
 
 export const POST = async (req: NextRequest) => {
+    const session = await getServerSession();
     const body = await req.json();    
     const { success, data, error } = ClaimTokenToAddress.safeParse(body);
     
@@ -26,8 +34,13 @@ export const POST = async (req: NextRequest) => {
         })
     }
 
-    const { tokenId, wallet, walletAddress, uniqueId } = data
- 
+    const { 
+            tokenId, 
+            // wallet, 
+            walletAddress, 
+            uniqueId 
+        } = data
+    
     const supabase = createClient();
 
     try {
@@ -49,8 +62,22 @@ export const POST = async (req: NextRequest) => {
         if(result.used) {
             return NextResponse.json({
                 success: false,
-                data: [],
+                data: null,
                 error: 'This code has been used or invalid'
+            })
+        }
+
+        const { data: SenderPublicKey, error: SenderError } = await supabase
+        .from('users')
+        .select('server_wallet, server_key')
+        .eq('email',session?.user?.email)
+        .maybeSingle()
+
+        if(SenderError) {
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: SenderError.message
             })
         }
 
@@ -63,26 +90,27 @@ export const POST = async (req: NextRequest) => {
         if(tokenError){
             return NextResponse.json({
                 success: false,
-                data: [],
+                data: null,
                 error: 'There was an error fetching data from token mints'
             })
         }
 
-        const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
-        const secretKey = Uint8Array.from(tokenData?.mint_secret_key)
-        const sender = Keypair.fromSecretKey(secretKey);
-        
+        const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')   
+        const sender = convertStringToSecretKey(SenderPublicKey?.server_key);
+
         const recipient = new PublicKey(walletAddress);
         const tokenMint = new PublicKey(tokenData?.mint_address);
+        console.log(tokenMint.toBase58());
         console.log(sender.publicKey.toBase58())
         console.log('transferring token...');
+    
         const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
             connection, sender, tokenMint, sender.publicKey
         )
         const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, sender, tokenMint, recipient);
         const amount = Number(tokenData?.tokensperclaim) * 10 ** 9;
         
-        const signnature = await transfer(
+        await transfer(
             connection,
             sender,
             senderTokenAccount.address,
@@ -91,17 +119,26 @@ export const POST = async (req: NextRequest) => {
             amount
         )
 
-        console.log(`transfer succesful,`+ signnature)
+        const {data: updateField, error: updateFieldError} = await supabase
+        .from('qr_codes')
+        .update({used: true, claimed_at: new Date().toISOString()})
+        .eq('unique_code', uniqueId)
+        .maybeSingle()
+
+        console.log(updateField)
+        if(updateFieldError){
+            console.log(updateFieldError)
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: updateFieldError.message
+            })
+        }
 
         return NextResponse.json({
             success: true,
             error: false,
-            data: [{
-                tokenId,
-                wallet,
-                walletAddress,
-                signnature
-            }]
+            data: 'This has been claimed'
         })    
     } catch (error) {
         console.log(error)

@@ -57,7 +57,15 @@ const Step2 = () => {
           method: 'POST',
           body: JSON.stringify({wallet: 'solana', walletAddress, tokenId: id!, uniqueId: uniqueId!})
         })
-        const response = await api.json();
+        const response = await api.json() as {success: boolean, error: boolean | string, data: null | string;}
+        
+        if(!response.success && typeof response.error === 'string' ){
+          toast.error(response.error);
+          return;
+        }
+
+        console.log(response.data)
+
         console.log(response)
         // console.log(setStep(3))
       } catch (error) {

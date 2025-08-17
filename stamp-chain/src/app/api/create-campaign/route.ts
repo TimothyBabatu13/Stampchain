@@ -22,6 +22,7 @@ import {
 import { createCampaign } from "@/validations/create-campaign-validation";
 import { createClient } from '@/config/supabase/supabase-server';
 import { getServerSession } from 'next-auth';
+import { convertStringToSecretKey } from '@/util/convert-string-to-secretKey';
 
 export const POST = async (req: NextRequest) => {
   const session = await getServerSession();
@@ -66,11 +67,7 @@ export const POST = async (req: NextRequest) => {
     if(getServerWalletError){
       console.log(getServerWalletError.message)
     }
-    const secretText = getServerWalletData?.server_key as string
-    const secretArray = secretText.split(",").map((num) => parseInt(num.trim()));
-    const secretKey = new Uint8Array(secretArray);
-    const keypair = Keypair.fromSecretKey(secretKey);
-  
+    const keypair = convertStringToSecretKey(getServerWalletData?.server_key)
     // const userPubkey = new PublicKey(walletAddress);
 
     const rentLamports = await getMinimumBalanceForRentExemptMint(connection);

@@ -35,15 +35,17 @@ export const POST = async (req: NextRequest) => {
         .maybeSingle()
         
         if(error) {
+            console.log(error)
             return NextResponse.json({
                 success: false,
                 data: null,
                 error: error.message
             })
         }
+        console.log(data)
 
         const result = data as dataTpe
-        
+        console.log(result)
         if(result.used) {
             return NextResponse.json({
                 success: false,
@@ -59,6 +61,7 @@ export const POST = async (req: NextRequest) => {
         })
     } catch (error) {
         const err = error as Error
+        console.log(err)
         return NextResponse.json({
             success: false,
             data: null,
