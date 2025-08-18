@@ -165,13 +165,12 @@ const Campaign = async () => {
   const campaigns = data.map(campaign => ({
     id: campaign.id,
     name: campaign.name,
-    status: (Number(campaign.tokens_claimed) / Number(campaign.initial_supply)) * 100 === 100 ? 'completed' : 'active',
     totalSupply: changeToNumber(campaign.initial_supply),
     claimed: changeToNumber(campaign.tokens_claimed),
     qrCodes: campaign.qrCodes,
     createdAt: campaign.created_at,
     claimCount: campaign.claimCount,
-    tokensperclaim: changeToNumber(campaign.tokensperclaim)
+    tokensperclaim: changeToNumber(campaign.tokensperclaim),
   }))
 
 
@@ -200,7 +199,9 @@ const Campaign = async () => {
             </div>
 
             <div className="grid gap-6">
-              {campaigns.map((campaign) => (
+              {campaigns.map((campaign) => {
+                const status = ((campaign.claimCount * campaign.tokensperclaim) / campaign.totalSupply) * 100 ? 'completed' : 'active'
+                return (
                 <Card key={campaign.id} className="border-0 shadow-lg">
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -210,10 +211,10 @@ const Campaign = async () => {
                           <Badge
                             variant="secondary"
                             className={
-                              campaign.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                              status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                             }
                           >
-                            {campaign.status}
+                            {status}
                           </Badge>
                         </CardTitle>
                         <CardDescription>
@@ -239,7 +240,7 @@ const Campaign = async () => {
                             id={campaign.id.toString()}
                             name={campaign.name}
                             qrCodes={campaign.qrCodes}
-                            status={campaign.status as 'active' | 'completed'}
+                            status={status as 'active' | 'completed'}
                             totalSupply={campaign.totalSupply}  
                           />
                           <ExportData />
@@ -273,7 +274,7 @@ const Campaign = async () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )})}
             </div>
           </div>
         )

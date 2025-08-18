@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity } from "lucide-react"
+import SettingsPage from "./settings"
 
 const ViewSettings = () => {
   return (
@@ -10,16 +11,12 @@ const ViewSettings = () => {
             </div>
 
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle>Coming Soon</CardTitle>
-                <CardDescription>Account settings panel will be available in the next update</CardDescription>
-              </CardHeader>
+              
               <CardContent>
-                <div className="h-32 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                  <div className="text-center text-gray-500">
-                    <Activity className="w-8 h-8 mx-auto mb-2" />
-                    <p>Settings panel coming soon</p>
-                  </div>
+                <div 
+                  // className="flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg"
+                >
+                  <SettingsPage />
                 </div>
               </CardContent>
             </Card>
