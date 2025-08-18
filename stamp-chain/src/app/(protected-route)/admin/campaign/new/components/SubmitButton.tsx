@@ -48,6 +48,7 @@ const SubmitButton = () => {
         return
       }
       console.log(resultOfSendCampaignData)
+      // router.push(result.url);
       const { unsignedTx, mintPublicKey } = resultOfSendCampaignData;
 
       const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));

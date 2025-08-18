@@ -1,5 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Activity } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import SettingsPage from "./settings"
 
 const ViewSettings = () => {
