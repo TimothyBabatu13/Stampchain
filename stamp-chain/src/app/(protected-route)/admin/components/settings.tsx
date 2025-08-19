@@ -9,11 +9,7 @@ import {
   Wallet,
   Copy,
   CheckCircle,
-  Eye,
-  EyeOff,
   Plus,
-  Trash2,
-  Sparkles,
   Coins,
   TrendingUp,
   Activity,
@@ -21,20 +17,93 @@ import {
   ExternalLink,
   Shield,
 } from "lucide-react"
+import { WalletBalanceCard } from "./settings-client-component"
 
+
+interface walletType {
+  id: number;
+    name: string;
+    address: string;
+    privateKey: string;
+    network: 'base' | 'solana';
+    isConnected: boolean;
+    balance: string;
+    lastUsed: string;
+}
+
+const WalletCard = (wallet: walletType) => {
+  const [copiedAddress, setCopiedAddress] = useState("")
+  // const [showPrivateKeys, setShowPrivateKeys] = useState(false)
+  const copyToClipboard = (text: string, type: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedAddress(type)
+    setTimeout(() => setCopiedAddress(""), 2000)
+  }
+  return(
+    <div key={wallet.id} className="p-4 border rounded-lg space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+            {wallet.name.charAt(0)}
+          </div>
+          <div>
+            <div className="font-medium">{wallet.name}</div>
+            <div className="text-sm text-gray-600">{wallet.network}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={wallet.isConnected ? "secondary" : "outline"}>
+            {wallet.isConnected ? "Connected" : "Disconnected"}
+          </Badge>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">Address:</span>
+          <div className="flex items-center gap-2">
+            <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
+              {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+            </code>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => copyToClipboard(wallet.address, `address-${wallet.id}`)}
+            >
+              {copiedAddress === `address-${wallet.id}` ? (
+                <CheckCircle className="w-3 h-3" />
+              ) : (
+              <Copy className="w-3 h-3" />
+              )}
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">Balance:</span>
+          <WalletBalanceCard wallet={wallet.network} />
+        </div>
+      </div>
+      <div className=" pt-2 border-t">
+        <Button size="sm" variant="outline" className="flex-1 bg-transparent w-full">
+          <ExternalLink className="w-3 h-3 mr-1" />
+          View on Explorer
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 const SettingsPage = () => {
-  const [showPrivateKeys, setShowPrivateKeys] = useState(false)
-  const [copiedAddress, setCopiedAddress] = useState("")
+  
+  
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const userWallets = [
     {
       id: 1,
       name: "Primary Wallet",
-      address: "0x1234567890abcdef1234567890abcdef12345678",
+      address: "8w6gHKvRHpNiBDUwH1YbpMfM2wAJk5exnqn3bvMXVonK",
       privateKey: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-      network: "Ethereum",
+      network: "solana",
       isConnected: true,
       balance: "2.45 ETH",
       lastUsed: "2 hours ago",
@@ -44,7 +113,7 @@ const SettingsPage = () => {
       name: "Secondary Wallet",
       address: "0xabcdef1234567890abcdef1234567890abcdef12",
       privateKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-      network: "Polygon",
+      network: "base",
       isConnected: false,
       balance: "156.78 MATIC",
       lastUsed: "1 day ago",
@@ -103,12 +172,12 @@ const SettingsPage = () => {
     },
   ]
 
-  const copyToClipboard = (text: string, type: string) => {
+  const [copiedAddress, setCopiedAddress] = useState("")
+const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text)
     setCopiedAddress(type)
     setTimeout(() => setCopiedAddress(""), 2000)
   }
-
   const refreshBalances = async () => {
     setIsRefreshing(true)
     // Simulate API call to refresh balances
@@ -129,21 +198,21 @@ const SettingsPage = () => {
     return "text-gray-600"
   }
 
-  const totalPortfolioValue = tokenHoldings.reduce((sum, token) => {
-    return sum + Number.parseFloat(token.value.replace("$", ""))
-  }, 0)
+  // const totalPortfolioValue = tokenHoldings.reduce((sum, token) => {
+  //   return sum + Number.parseFloat(token.value.replace("$", ""))
+  // }, 0)
 
   return (
     <div className="">
 
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="container mx-auto px-4 py-8 pt-0 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Wallet & Token Management</h1>
           <p className="text-gray-600">Manage your connected wallets and view your token holdings</p>
         </div>
 
         {/* Portfolio Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-0 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Portfolio Value</CardTitle>
@@ -193,14 +262,13 @@ const SettingsPage = () => {
               </p>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Connected Wallets */}
           <div className="space-y-6">
             <Card className="border-0 shadow-lg">
               <CardHeader>
-                <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Wallet className="w-5 h-5" />
@@ -208,103 +276,106 @@ const SettingsPage = () => {
                     </CardTitle>
                     <CardDescription>Manage your cryptocurrency wallets</CardDescription>
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Connect Wallet
-                  </Button>
-                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {userWallets.map((wallet) => (
-                  <div key={wallet.id} className="p-4 border rounded-lg space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {wallet.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-medium">{wallet.name}</div>
-                          <div className="text-sm text-gray-600">{wallet.network}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={wallet.isConnected ? "secondary" : "outline"}>
-                          {wallet.isConnected ? "Connected" : "Disconnected"}
-                        </Badge>
-                      </div>
-                    </div>
+                  <WalletCard 
+                    address={wallet.address} 
+                    balance={wallet.balance} 
+                    id={wallet.id} 
+                    isConnected 
+                    lastUsed={wallet.lastUsed}
+                    name={wallet.name}
+                    network={wallet.network as 'solana' | 'base'}
+                    privateKey={wallet.privateKey}
+                    key={crypto.randomUUID()}
+                  />
+                  // <div key={wallet.id} className="p-4 border rounded-lg space-y-3">
+                  //   <div className="flex items-center justify-between">
+                  //     <div className="flex items-center gap-3">
+                  //       <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  //         {wallet.name.charAt(0)}
+                  //       </div>
+                  //       <div>
+                  //         <div className="font-medium">{wallet.name}</div>
+                  //         <div className="text-sm text-gray-600">{wallet.network}</div>
+                  //       </div>
+                  //     </div>
+                  //     <div className="flex items-center gap-2">
+                  //       <Badge variant={wallet.isConnected ? "secondary" : "outline"}>
+                  //         {wallet.isConnected ? "Connected" : "Disconnected"}
+                  //       </Badge>
+                  //     </div>
+                  //   </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Address:</span>
-                        <div className="flex items-center gap-2">
-                          <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
-                            {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
-                          </code>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => copyToClipboard(wallet.address, `address-${wallet.id}`)}
-                          >
-                            {copiedAddress === `address-${wallet.id}` ? (
-                              <CheckCircle className="w-3 h-3" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
+                  //   <div className="space-y-2">
+                  //     <div className="flex items-center justify-between">
+                  //       <span className="text-sm text-gray-600">Address:</span>
+                  //       <div className="flex items-center gap-2">
+                  //         <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
+                  //           {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+                  //         </code>
+                  //         <Button
+                  //           size="sm"
+                  //           variant="outline"
+                  //           onClick={() => copyToClipboard(wallet.address, `address-${wallet.id}`)}
+                  //         >
+                  //           {copiedAddress === `address-${wallet.id}` ? (
+                  //             <CheckCircle className="w-3 h-3" />
+                  //           ) : (
+                  //             <Copy className="w-3 h-3" />
+                  //           )}
+                  //         </Button>
+                  //       </div>
+                  //     </div>
 
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Balance:</span>
-                        <span className="text-sm font-medium">{wallet.balance}</span>
-                      </div>
+                  //     <div className="flex items-center justify-between">
+                  //       <span className="text-sm text-gray-600">Balance:</span>
+                  //       <span className="text-sm font-medium">{wallet.balance}</span>
+                  //     </div>
 
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Last Used:</span>
-                        <span className="text-sm text-gray-600">{wallet.lastUsed}</span>
-                      </div>
+                  //     <div className="flex items-center justify-between">
+                  //       <span className="text-sm text-gray-600">Last Used:</span>
+                  //       <span className="text-sm text-gray-600">{wallet.lastUsed}</span>
+                  //     </div>
 
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Private Key:</span>
-                        <div className="flex items-center gap-2">
-                          <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
-                            {showPrivateKeys ? wallet.privateKey.slice(0, 10) + "..." : "••••••••••"}
-                          </code>
-                          <Button size="sm" variant="outline" onClick={() => setShowPrivateKeys(!showPrivateKeys)}>
-                            {showPrivateKeys ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                          </Button>
-                          {showPrivateKeys && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => copyToClipboard(wallet.privateKey, `key-${wallet.id}`)}
-                            >
-                              {copiedAddress === `key-${wallet.id}` ? (
-                                <CheckCircle className="w-3 h-3" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                  //     <div className="flex items-center justify-between">
+                  //       <span className="text-sm text-gray-600">Private Key:</span>
+                  //       <div className="flex items-center gap-2">
+                  //         <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">
+                  //           {showPrivateKeys ? wallet.privateKey.slice(0, 10) + "..." : "••••••••••"}
+                  //         </code>
+                  //         <Button size="sm" variant="outline" onClick={() => setShowPrivateKeys(!showPrivateKeys)}>
+                  //           {showPrivateKeys ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  //         </Button>
+                  //         {showPrivateKeys && (
+                  //           <Button
+                  //             size="sm"
+                  //             variant="outline"
+                  //             onClick={() => copyToClipboard(wallet.privateKey, `key-${wallet.id}`)}
+                  //           >
+                  //             {copiedAddress === `key-${wallet.id}` ? (
+                  //               <CheckCircle className="w-3 h-3" />
+                  //             ) : (
+                  //               <Copy className="w-3 h-3" />
+                  //             )}
+                  //           </Button>
+                  //         )}
+                  //       </div>
+                  //     </div>
+                  //   </div>
 
-                    <div className="flex gap-2 pt-2 border-t">
-                      <Button size="sm" variant="outline" className="flex-1 bg-transparent">
-                        <ExternalLink className="w-3 h-3 mr-1" />
-                        View on Explorer
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 bg-transparent">
-                        <Trash2 className="w-3 h-3 mr-1" />
-                        Disconnect
-                      </Button>
-                    </div>
-                  </div>
+                  //   <div className="flex gap-2 pt-2 border-t">
+                  //     <Button size="sm" variant="outline" className="flex-1 bg-transparent">
+                  //       <ExternalLink className="w-3 h-3 mr-1" />
+                  //       View on Explorer
+                  //     </Button>
+                  //     <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 bg-transparent">
+                  //       <Trash2 className="w-3 h-3 mr-1" />
+                  //       Disconnect
+                  //     </Button>
+                  //   </div>
+                  // </div>
                 ))}
               </CardContent>
             </Card>

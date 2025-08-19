@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useFormStore } from "@/stores/formStore";
 import { useLoadingStore } from "@/stores/loadingStore";
 import { useWalletStore } from "@/stores/walletStore";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { Transaction } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -16,7 +14,6 @@ const SubmitButton = () => {
   const { loading, setIsLoading } = useLoadingStore()
   const form = useFormStore(e => e.form);
   const { walletAddress, wallet } = useWalletStore()
-  const { signTransaction } = useWallet();
   // const { setCampaign, setSelectedCampaign } = useQrGeneratorStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,54 +44,17 @@ const SubmitButton = () => {
         console.log(resultOfSendCampaignData.error)
         return
       }
-      console.log(resultOfSendCampaignData)
-      // router.push(result.url);
-      const { unsignedTx, mintPublicKey } = resultOfSendCampaignData;
-
-      const tx = Transaction.from(Buffer.from(unsignedTx, "base64"));
-
-      const signedTx = await signTransaction!(tx);
-
-      const completeCampaignDataTransactiom = await fetch("/api/create-campaign/continue", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          signedTx: signedTx.serialize().toString("base64"),
-          mintPublicKey
-        }),
-      });
-
-      const result = await completeCampaignDataTransactiom.json();
 
       setIsLoading(false)
-      if (result.success) {
-        toast.success('Campaign created.')
-        router.push(result.url);
-      }
+      toast.success('Campaign created.')
+      router.push(resultOfSendCampaignData.url);
+      
     } catch (error) {
       const err = error as Error
       toast.error(`An error occured ${err.message}`)
       console.error(err);
       setIsLoading(false)
     } 
-
-    // const createForm = {
-    //   id: crypto.randomUUID(),
-    //   name: form.name,
-    //   tokenSymbol: form.tokenSymbol
-    // }
-
-    // setCampaign(createForm);
-    // setSelectedCampaign(createForm.id);
-
-    // console.log(walletAddress)
-    // const api = await fetch('/api/create-campaign', {
-    //   method: 'POST',
-    //   body: JSON.stringify(form)
-    // });
-    // const response = await api.json();
-    // console.log(response)
-
   }
 
   return (

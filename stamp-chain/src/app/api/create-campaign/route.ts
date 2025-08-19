@@ -2,22 +2,31 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   Connection,
   Keypair,
-  // PublicKey,
   SystemProgram,
   Transaction,
   clusterApiUrl,
   sendAndConfirmTransaction,
-} from '@solana/web3.js'
-
+} from "@solana/web3.js";
 import {
-  createAssociatedTokenAccountInstruction,
+  ExtensionType,
+  TOKEN_2022_PROGRAM_ID,
   createInitializeMintInstruction,
-  createMintToInstruction,
+  getMintLen,
+  createInitializeMetadataPointerInstruction,
+  getMint,
+  getMetadataPointerState,
+  TYPE_SIZE,
+  LENGTH_SIZE,
   getAssociatedTokenAddress,
-  getMinimumBalanceForRentExemptMint,
-  MINT_SIZE,
-  TOKEN_PROGRAM_ID,
-} from '@solana/spl-token'
+  createAssociatedTokenAccountInstruction,
+  createMintToInstruction,
+} from "@solana/spl-token";
+import {
+  createInitializeInstruction,
+  createUpdateFieldInstruction,
+  pack,
+  TokenMetadata,
+} from "@solana/spl-token-metadata";
 
 import { createCampaign } from "@/validations/create-campaign-validation";
 import { createClient } from '@/config/supabase/supabase-server';
@@ -62,152 +71,183 @@ export const POST = async (req: NextRequest) => {
     .maybeSingle()
 
     
-    console.log(getServerWalletData)
-
     if(getServerWalletError){
       console.log(getServerWalletError.message)
+      return NextResponse.json({ error: getServerWalletError.message, success: false, validationError: false })
     }
     const keypair = convertStringToSecretKey(getServerWalletData?.server_key)
     // const userPubkey = new PublicKey(walletAddress);
 
-    const rentLamports = await getMinimumBalanceForRentExemptMint(connection);
-
-    const createMintAccountIx = SystemProgram.createAccount({
-      fromPubkey: keypair.publicKey, // payer
-      newAccountPubkey: mintAuthority.publicKey,   // the mint account
-      space: MINT_SIZE,
-      lamports: rentLamports,
-      programId: TOKEN_PROGRAM_ID,
-    });
-
-
-    const initializeMintIx = createInitializeMintInstruction(
-      mintAuthority.publicKey,
-      Number(decimals),
-      keypair.publicKey, // mint authority
-      keypair.publicKey  // freeze authority (you can make this null if desired)
-    );
-
-     const serverAta = await getAssociatedTokenAddress(
-      mintAuthority.publicKey,
-      keypair.publicKey
-    );
-
-     const createServerAtaIx = createAssociatedTokenAccountInstruction(
-      keypair.publicKey, // payer
-      serverAta,              // ATA address
-      keypair.publicKey, // owner
-      mintAuthority.publicKey          // mint
-    );
-
-    const supplyBig = BigInt(String(totalSupply));
-    const amountInBaseUnits = supplyBig * BigInt(10) ** BigInt(Number(decimals));
-
-    const mintToIx = createMintToInstruction(
-      mintAuthority.publicKey,
-      serverAta,
-      keypair.publicKey,        // mint authority
-      Number(amountInBaseUnits),     // SPL helpers accept number; safe if <= Number.MAX_SAFE_INTEGER
-      []                             
-    );
-
-    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-    const tx = new Transaction({
-      feePayer: keypair.publicKey,
-      blockhash,
-      lastValidBlockHeight,
-    }).add(createMintAccountIx, initializeMintIx, createServerAtaIx, mintToIx);
-
-    const signature = await sendAndConfirmTransaction(connection, tx, [
-      keypair, // pays fees & is mint authority
-      mintAuthority,         // signs because we created the mint account
-    ]);
-
-    
-  //   const ata = await getAssociatedTokenAddress(
-  //     mintAuthority.publicKey,
-  //     userPubkey
-  //   )
-
-  //   const lamports = await getMinimumBalanceForRentExemptMint(connection);
-
-  //   const createAccountIx = SystemProgram.createAccount({
-  //     fromPubkey: userPubkey,
-  //     newAccountPubkey: mintAuthority.publicKey,
-  //     space: MINT_SIZE,
-  //     lamports,
-  //     programId: TOKEN_PROGRAM_ID
-  //   });
-  
-  //   const initMintIx = createInitializeMintInstruction(
-  //     mintAuthority.publicKey,
-  //     Number(decimals),
-  //     userPubkey, 
-  //     userPubkey,
-  //     TOKEN_PROGRAM_ID
-  //   );
-  
-
-  //   const createAtaIx = createAssociatedTokenAccountInstruction(
-  //     userPubkey,
-  //     ata,
-  //     userPubkey,
-  //     mintAuthority.publicKey
-  //   );
-
-  //   const mintToIx = createMintToInstruction(
-  //     mintAuthority.publicKey,
-  //     ata,
-  //     userPubkey,
-  //     Number(totalSupply) * (10 ** Number(decimals)),
-  //     [],
-  //     TOKEN_PROGRAM_ID
-  //   );
-    
-  //   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-    
-  //   const tx = new Transaction({
-  //     feePayer: userPubkey,blockhash,
-  //     lastValidBlockHeight
-  //   }).add(createAccountIx, initMintIx, createAtaIx, mintToIx);
-
-  // // Backend signs with mint key
-  //   tx.partialSign(mintAuthority);
-
-    const { data, error } = await superbase.from('token_mints').insert({
-      mint_address: mintAuthority.publicKey.toBase58(),
-      mint_secret_key: Array.from(mintAuthority.secretKey),
-      creator_email: session.user?.email,
-      decimals: decimals,
+    const metaData: TokenMetadata = {
+      updateAuthority: keypair.publicKey,
+      mint: mintAuthority.publicKey,
       name: name,
-      description,
       symbol: tokenSymbol,
-      initial_supply: totalSupply,
-      maxclaimsperwallet: maxClaimsPerWallet,
-      tokensperclaim: tokensPerClaim
-    })
+      uri: "https://raw.githubusercontent.com/solana-developers/opos-asset/main/assets/DeveloperPortal/metadata.json",
+      additionalMetadata: [["description", "Only Possible On Solana"]],
+    };
     
+    const metadataExtension = TYPE_SIZE + LENGTH_SIZE;
+    const metadataLen = pack(metaData).length;
+    
+    const mintLen = getMintLen([ExtensionType.MetadataPointer]);
+    
+    const lamports = await connection.getMinimumBalanceForRentExemption(
+      mintLen + metadataExtension + metadataLen,
+    );
 
-    if (error) {
-      console.log(error)
-    }
+
+
+
+const createAccountInstruction = SystemProgram.createAccount({
+  fromPubkey: keypair.publicKey,
+  newAccountPubkey: mintAuthority.publicKey,
+  space: mintLen, 
+  lamports, 
+  programId: TOKEN_2022_PROGRAM_ID, 
+});
+
+
+const initializeMetadataPointerInstruction =
+  createInitializeMetadataPointerInstruction(
+    mintAuthority.publicKey, 
+    keypair.publicKey, 
+    mintAuthority.publicKey,
+    TOKEN_2022_PROGRAM_ID,
+  );
+
+  
+const initializeMintInstruction = createInitializeMintInstruction(
+  mintAuthority.publicKey,
+  Number(decimals), 
+  mintAuthority.publicKey,
+  null, 
+  TOKEN_2022_PROGRAM_ID,
+);
+
+// Instruction to initialize Metadata Account data
+const initializeMetadataInstruction = createInitializeInstruction({
+  programId: TOKEN_2022_PROGRAM_ID, 
+  metadata: mintAuthority.publicKey,
+  updateAuthority: keypair.publicKey,
+  mint: mintAuthority.publicKey, 
+  mintAuthority: mintAuthority.publicKey,
+  name: metaData.name,
+  symbol: metaData.symbol,
+  uri: metaData.uri,
+});
+
+
+
+const updateFieldInstruction = createUpdateFieldInstruction({
+  programId: TOKEN_2022_PROGRAM_ID, 
+  metadata: mintAuthority.publicKey,
+  updateAuthority: keypair.publicKey,
+  field: metaData.additionalMetadata[0][0],
+  value: metaData.additionalMetadata[0][1],
+});
+
+
+const transaction = new Transaction().add(
+  createAccountInstruction,
+  initializeMetadataPointerInstruction,
+  initializeMintInstruction,
+  initializeMetadataInstruction,
+  updateFieldInstruction,
+);
+
+// Send transaction
+const transactionSignature = await sendAndConfirmTransaction(
+  connection,
+  transaction,
+  [keypair, mintAuthority], 
+);
+
+console.log('transaction went through', transactionSignature)
+
+const mintInfo = await getMint(
+  connection,
+  mintAuthority.publicKey,
+  "confirmed",
+  TOKEN_2022_PROGRAM_ID,
+);
+
+
+const metadataPointer = getMetadataPointerState(mintInfo);
+console.log("\nMetadata Pointer:", JSON.stringify(metadataPointer, null, 2));
+
+
+const serverAta = await getAssociatedTokenAddress(
+  mintAuthority.publicKey,
+  keypair.publicKey,
+  false,
+  TOKEN_2022_PROGRAM_ID
+);
+
+const createServerAtaIx = createAssociatedTokenAccountInstruction(
+  keypair.publicKey, 
+  serverAta,
+  keypair.publicKey, 
+  mintAuthority.publicKey,
+  TOKEN_2022_PROGRAM_ID
+);
+
+const supplyBig = BigInt(String(totalSupply));
+const amountInBaseUnits = supplyBig * BigInt(10) ** BigInt(Number(decimals));
+
+const mintToIx = createMintToInstruction(
+  mintAuthority.publicKey,
+  serverAta,
+  mintAuthority.publicKey,
+  Number(amountInBaseUnits),
+  [],
+  TOKEN_2022_PROGRAM_ID
+);
+
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+const tx2 = new Transaction({
+  feePayer: keypair.publicKey,
+  blockhash,
+  lastValidBlockHeight,
+}).add(createServerAtaIx, mintToIx);
+
+const signature = await sendAndConfirmTransaction(connection, tx2, [
+  keypair, mintAuthority
+]);
+
+console.log(signature, 'This works well apparently')
+
+const { data, error } = await superbase.from('token_mints').insert({
+  mint_address: mintAuthority.publicKey.toBase58(),
+  mint_secret_key: Array.from(mintAuthority.secretKey),
+  creator_email: session.user?.email,
+  decimals: decimals,
+  name: name,
+  description,
+  symbol: tokenSymbol,
+  initial_supply: totalSupply,
+  maxclaimsperwallet: maxClaimsPerWallet,
+  tokensperclaim: tokensPerClaim
+})
+.select('id')
+.maybeSingle()
+
+
+if (error) {
+  return NextResponse.json({ error: error.message, success: false, validationError: false })
+}
+    
     
     return NextResponse.json({
       success: true,
       error: false,
-      txid: signature,
       explorer: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
-      // https://solscan.io/
-      // url: `/admin/campaign/success?id=${data.id}`,
-      unsignedTx: tx.serialize({
-        requireAllSignatures: false,
-      }).toString('base64'),
-      mintPublicKey: mintAuthority.publicKey.toBase58(),
-      data
+      url: `/admin/campaign/success?id=${data?.id}`
     })
   } catch (error) {
     const err = error as Error
+    console.log(err)
     return NextResponse.json({ error: err.message, success: false, validationError: false })
   }
 }
