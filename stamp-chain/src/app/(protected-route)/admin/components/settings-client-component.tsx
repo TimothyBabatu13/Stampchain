@@ -1,7 +1,24 @@
 'use client';
 
 import { useWalletSettings } from "@/stores/wallet-settings";
+import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useEffect } from "react";
+
+
+ const getWalletBalance = async (walletAddress: string): Promise<number> => {
+  try {    
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const publicKey = new PublicKey(walletAddress);
+    
+    const balanceLamports = await connection.getBalance(publicKey);
+    const balance = Number((balanceLamports/LAMPORTS_PER_SOL).toPrecision(3))
+    
+    return balance;
+  } catch (err) {
+    console.error("Error getting balance:", err);
+    throw err;
+  }
+}
 
 export const WalletBalanceCard = ({ wallet }: {
     wallet: 'solana' | 'base'
@@ -12,12 +29,29 @@ export const WalletBalanceCard = ({ wallet }: {
     // const fetchBalances = async () => {
     //     const [] = await Promise.allSettled([]);
     // }
+
+    useEffect(()=>{
+        const fetchWalletAddress = async () => {
+            if(typeof solBalance === 'number'){
+                return;
+            }
+            const api = await fetch('/api/get-wallet');
+            const response = await api.json()
+            if(!response.success){
+                return
+            }
+            const server_wallet = response.data.server_wallet;
+       
+            const balance = await getWalletBalance(server_wallet);
+            setSolBalance(balance);
+        }
+        fetchWalletAddress();
+    }, [])
     
     useEffect(()=>{
         if(wallet === 'base'){
             setBaseBalance(4.62)
         } 
-        setSolBalance(3.65)
     }, [])
 
     if(wallet === 'base') {
