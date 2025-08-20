@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useWalletSettings } from "@/stores/wallet-settings";
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
@@ -26,12 +27,7 @@ const getWalletBalance = async (walletAddress: string): Promise<number> => {
 export const WalletBalanceCard = ({ wallet }: {
     wallet: 'solana' | 'base'
 }) => {
-    // const [isLoading, setIsLoading] = useState<boolean>(false);
     const { solBalance, baseBalance, setSolBalance, setBaseBalance, setSolWalletAddress } = useWalletSettings();
-
-    // const fetchBalances = async () => {
-    //     const [] = await Promise.allSettled([]);
-    // }
 
     useEffect(() => {
         const fetchWalletAddress = async () => {
@@ -61,6 +57,14 @@ export const WalletBalanceCard = ({ wallet }: {
         return <span className="text-sm font-medium">{baseBalance}BASE</span>
     }
 
+    if(typeof solBalance !== 'number') {
+        return (
+        <div className="flex items-center gap-1">
+            <Skeleton className="h-2 w-8 bg-black" />
+            <span>SOL</span>
+        </div>
+        )
+    }
     return <span className="text-sm font-medium">{solBalance}SOL</span>
 
 }
@@ -94,7 +98,7 @@ export const CopyToClipboardButton = () => {
 export const WalletAddressCard = () => {
     const { solWalletAddress } = useWalletSettings();
     if(typeof solWalletAddress !== 'string') {
-        return null
+        return <Skeleton className="h-2 w-12 bg-black" />
     }
     return(
         <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">

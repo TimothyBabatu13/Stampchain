@@ -2,7 +2,7 @@
 import { createClient } from "@/config/supabase/supabase-server";
 import { convertStringToSecretKey } from "@/util/convert-string-to-secretKey";
 import { ClaimTokenToAddress } from "@/validations/claim-token-validation";
-import { getOrCreateAssociatedTokenAccount, transfer } from "@solana/spl-token";
+import { getOrCreateAssociatedTokenAccount, TOKEN_2022_PROGRAM_ID, transfer } from "@solana/spl-token";
 import { 
     clusterApiUrl, 
     Connection, 
@@ -160,73 +160,67 @@ export const POST = async (req: NextRequest) => {
     
     const supabase = createClient();
 
-    const [qrCodes, serverWallet, tokenData] = await Promise.allSettled([isQRCodeValid(uniqueId), getServerWallets(session!.user!.email!), fetchTokenMintData(tokenId)]);
-
-    if(qrCodes.status === 'rejected') {
-        const reason = qrCodes.reason as string;
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error: reason
-        })
-    }
-    if(serverWallet.status === 'rejected'){
-        const reason = serverWallet.reason as string;
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error: reason
-        })
-    }
-    if(tokenData.status === 'rejected'){
-        const reason = tokenData.reason as string;
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error: reason
-        })
-    }
-
-    if(qrCodes.status === 'fulfilled' && !qrCodes.value.success){
-        const reason = qrCodes.value.errorMessage as string;
-        console.log(reason)
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error:reason
-        });
-    }
-    if(serverWallet.status === 'fulfilled' && !serverWallet.value.success){
-        const reason = serverWallet.value.errorMessage as string;
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error: reason
-        })
-    }
-    if(tokenData.status === 'fulfilled' && !tokenData.value.success){
-        const reason = tokenData.value.errorMessage as string;
-        console.log(reason)
-        return NextResponse.json({
-            success: false,
-            data: null,
-            error:reason
-        });
-    }
-
-    
     try {
+        const qrCodesValid = await isQRCodeValid(uniqueId);
+        if(!qrCodesValid.success){
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: qrCodesValid.errorMessage as string
+            })
+        }
+
+        const [serverWallet, tokenData] = await Promise.allSettled([getServerWallets(session!.user!.email!), fetchTokenMintData(tokenId)]);
+
+        if(serverWallet.status === 'rejected'){
+            const reason = serverWallet.reason as string;
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: reason
+            })
+        }
         
+        if(tokenData.status === 'rejected'){
+            const reason = tokenData.reason as string;
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: reason
+            })
+        }
+
+        if(serverWallet.status === 'fulfilled' && !serverWallet.value.success){
+            const reason = serverWallet.value.errorMessage as string;
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error: reason
+            })
+        }
+        
+        if(tokenData.status === 'fulfilled' && !tokenData.value.success){
+            const reason = tokenData.value.errorMessage as string;
+            console.log(reason)
+            return NextResponse.json({
+                success: false,
+                data: null,
+                error:reason
+            });
+        }
+
         const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')   
         const sender = serverWallet.value.data!;
 
+        
         const recipient = new PublicKey(walletAddress);
         const tokenMint = new PublicKey(tokenData.value.data!.mint_address!);
-     
+        
         const senderTokenAccount = await getOrCreateAssociatedTokenAccount(
-            connection, sender, tokenMint, sender.publicKey
+            connection, sender, tokenMint, sender.publicKey, false, "confirmed", undefined, TOKEN_2022_PROGRAM_ID  
         )
-        const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, sender, tokenMint, recipient);
+        
+        const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(connection, sender, tokenMint, recipient, false, "confirmed", undefined, TOKEN_2022_PROGRAM_ID);
         const amount = Number(tokenData.value.data?.tokensperclaim) * 10 ** 9;
         
         await transfer(
@@ -235,7 +229,10 @@ export const POST = async (req: NextRequest) => {
             senderTokenAccount.address,
             recipientTokenAccount.address,
             sender.publicKey,
-            amount
+            amount,
+            [],
+            undefined,
+            TOKEN_2022_PROGRAM_ID
         )
 
         const {data: updateField, error: updateFieldError} = await supabase
@@ -246,7 +243,6 @@ export const POST = async (req: NextRequest) => {
 
         console.log(updateField)
         if(updateFieldError){
-            console.log(updateFieldError)
             return NextResponse.json({
                 success: false,
                 data: null,
@@ -267,6 +263,5 @@ export const POST = async (req: NextRequest) => {
             success:false,
             data: null
         })
-    }
-    
+    }    
 }
