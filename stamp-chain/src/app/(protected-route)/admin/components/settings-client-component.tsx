@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWalletSettings } from "@/stores/wallet-settings";
+import { useWalletStore } from "@/stores/walletStore";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { CheckCircle, Copy, ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -122,4 +124,27 @@ export const ViewOnExplorer = () => {
           View on Explorer
         </Link>
     )
+}
+
+export const SolanaIcon = () => {
+    
+    const { wallets: providerWallets } = useWallet();
+    const { solanaIcon, setSolanaIcon } = useWalletStore();
+    
+    useEffect(() =>{
+        if(typeof solanaIcon === 'string') return
+        const wallets = providerWallets.map(wallet => (
+          {
+            name: wallet.adapter.name,
+            icon: wallet.adapter.icon,
+            installed: wallet.readyState.toString() === "Installed",
+            installUrl: wallet.adapter.url 
+          }
+        ))
+        const solanaIconX = wallets[0].icon;
+        setSolanaIcon(solanaIconX)
+    }, [])
+    
+    if(typeof solanaIcon !== 'string') return null
+    return <img src={solanaIcon} alt="solana icon" className="h-full w-full max-w-10 max-h-10"/>
 }

@@ -26,10 +26,6 @@ export const createCampaign = z.object({
     required_error: "Total supply is required.",
     invalid_type_error: "Total supply must be a number.",
   }).nonempty("Total supply must not be empty"),
-  walletAddress: z.string({
-    required_error: "Wallet address is required.",
-    invalid_type_error: "Wallet address must be a string.",
-  }).nonempty("Wallet address must not be empty"),
 });
 
 export const continueCreateCampaign = z.object({

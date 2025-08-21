@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   Wallet,
 } from "lucide-react"
-import { CopyToClipboardButton, ViewOnExplorer, WalletAddressCard, WalletBalanceCard } from "./settings-client-component"
+import { CopyToClipboardButton, SolanaIcon, ViewOnExplorer, WalletAddressCard, WalletBalanceCard } from "./settings-client-component"
 
 const userWallets = [
     {
@@ -12,12 +12,12 @@ const userWallets = [
       network: "solana",
       isConnected: true,
     },
-    {
-      id: 2,
-      name: "Base Wallet",
-      network: "base",
-      isConnected: false,
-    },
+    // {
+    //   id: 2,
+    //   name: "Base Wallet",
+    //   network: "base",
+    //   isConnected: false,
+    // },
   ]
 
 interface walletType {
@@ -33,15 +33,13 @@ const WalletCard = (wallet: walletType) => {
     <div key={wallet.id} className="p-4 border rounded-lg space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-            {wallet.name.charAt(0)}
-          </div>
+          <SolanaIcon />
           <div>
-            <div className="font-medium">{wallet.name}</div>
+            <div className="text-sm md:text-base font-medium">{wallet.name}</div>
             <div className="text-sm text-gray-600">{wallet.network}</div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <Badge variant={wallet.isConnected ? "secondary" : "outline"}>
             {wallet.isConnected ? "Connected" : "Disconnected"}
           </Badge>

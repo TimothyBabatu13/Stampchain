@@ -5,7 +5,6 @@ import TokenForm from "./components/token-form"
 import ExpiryForm from "./components/expiry-form"
 import SubmitButton from "./components/SubmitButton"
 import CampaignPreview from "./components/campaign-preview"
-import ConnectWallet from "@/components/connect-wallet"
 
 const NewCampaign = () => {
 
@@ -28,7 +27,6 @@ const NewCampaign = () => {
             <Link href="/admin">
               <Button variant="outline">Cancel</Button>
             </Link>
-            <ConnectWallet />
             <SubmitButton />
           </div>
         </form>

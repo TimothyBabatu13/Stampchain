@@ -13,25 +13,42 @@ const SubmitButton = () => {
   const router = useRouter()
   const { loading, setIsLoading } = useLoadingStore()
   const form = useFormStore(e => e.form);
-  const { walletAddress, wallet } = useWalletStore()
+  const { wallet } = useWalletStore()
   // const { setCampaign, setSelectedCampaign } = useQrGeneratorStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true);
 
-    if (!walletAddress || !wallet) {
+    if (!wallet) {
+      setIsLoading(false)
       return
     }
 
+    const formData = new FormData();
+    
+    if (form.file) {
+      formData.append("file", form.file);
+    }
+    
+    formData.append("data", JSON.stringify({
+      name: form.name,
+      description: form.description,
+      tokenSymbol: form.tokenSymbol,
+      totalSupply: form.totalSupply,
+      tokensPerClaim: form.tokensPerClaim,
+      maxClaimsPerWallet: form.maxClaimsPerWallet,
+      expirationDate: form.expirationDate,
+      enableExpiration: form.enableExpiration,
+      blockchain: form.blockchain,
+      wallet,
+    }));
+    
     try {
       const sendCampaignData = await fetch("/api/create-campaign", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          walletAddress: walletAddress,
-        }),
+        body: formData
+        
       });
 
       const resultOfSendCampaignData = await sendCampaignData.json();
@@ -62,7 +79,7 @@ const SubmitButton = () => {
       type="submit"
       onClick={handleSubmit}
       variant={'outline'}
-      disabled={!form.name || !form.tokenSymbol || !form.totalSupply || !form.tokensPerClaim || loading || !form.maxClaimsPerWallet || !wallet || !walletAddress}
+      disabled={!form.name || !form.tokenSymbol || !form.totalSupply || !form.tokensPerClaim || loading || !form.maxClaimsPerWallet || !wallet || !form.file}
     >
       {
         loading ? (

@@ -33,7 +33,6 @@ const Step2 = () => {
     const { setIsLoading, loading: isLoading } = useLoadingStore();
 
     const walletConnected = wallets ? true : false
-    
     useEffect(()=>{
       const fetchData = async () => {
         const api = await fetch('api/fetch-claim-qr-details',{
@@ -50,7 +49,7 @@ const Step2 = () => {
       fetchData();
     }, [])
     const handleClaim = async () => {
-      console.log(uniqueId)
+
       setIsLoading(true)
       try {  
         const api = await fetch('/api/claim/to-wallet', {
@@ -119,7 +118,7 @@ const Step2 = () => {
                   <div className="space-y-4">
                     <Alert>
                       <CheckCircle className="h-4 w-4" />
-                      <AlertDescription>Wallet connected: {formatAddress(walletAddress)}</AlertDescription>
+                      <AlertDescription>Wallet connected: {typeof walletAddress === 'string' ? formatAddress(walletAddress) : ''}</AlertDescription>
                     </Alert>
                     <ConnectWallet className="w-full" />
                     <Button

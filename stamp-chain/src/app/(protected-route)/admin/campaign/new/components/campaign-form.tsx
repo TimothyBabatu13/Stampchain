@@ -8,8 +8,9 @@ import { Target } from "lucide-react"
 
 const CampaignForm = () => {
 
-  const { name, description, tokenSymbol,  } = useFormStore(s => s.form);
+  const { name, description, tokenSymbol } = useFormStore(s => s.form);
   const setForm = useFormStore(s => s.setForm);
+  
 
   return (
     <Card className="border-0 shadow-lg">
@@ -48,6 +49,20 @@ const CampaignForm = () => {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tokenSymbol">Token Image *</Label>
+                  <Input
+                    id="tokenImage"
+                    required
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setForm({file})
+                    }}
+                  />
+                </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -58,6 +73,8 @@ const CampaignForm = () => {
                   rows={3}
                 />
               </div>
+              </div>
+              
             </CardContent>
           </Card>
   )

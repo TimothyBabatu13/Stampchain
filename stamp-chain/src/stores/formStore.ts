@@ -9,7 +9,8 @@ type FormValues = {
   maxClaimsPerWallet: string
   expirationDate: string
   enableExpiration: boolean
-  blockchain: string
+  blockchain: string,
+  file: File | null
 }
 
 type FormStore = {
@@ -29,6 +30,7 @@ export const useFormStore = create<FormStore>((set) => ({
     expirationDate: '',
     enableExpiration: false,
     blockchain: 'solana',
+    file: null
   },
   setForm: (fields) =>
     set((state) => ({
@@ -46,6 +48,7 @@ export const useFormStore = create<FormStore>((set) => ({
         expirationDate: '',
         enableExpiration: false,
         blockchain: 'solana',
+        file: null
       },
     }),
 }))

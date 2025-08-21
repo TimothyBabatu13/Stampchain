@@ -6,8 +6,10 @@ interface walletStoreProvider {
     setWallet: (fields: walletValues) => void,
     connectedWallets: Array<walletValues>,
     setConnectedWallets: (wallet: walletValues) => void,
-    walletAddress: string,
-    setWalletAddress: (value: string) => void
+    walletAddress: string | null,
+    setWalletAddress: (value: string | null) => void,
+    solanaIcon: string | null,
+    setSolanaIcon: (value: string) => void
 }
 
 export const useWalletStore = create<walletStoreProvider>((set) => ({
@@ -19,10 +21,16 @@ export const useWalletStore = create<walletStoreProvider>((set) => ({
             connectedWallets: [...prevWallets.connectedWallets, wallet],
         }))
     },
-    walletAddress: '',
+    walletAddress: null,
     setWalletAddress: (value) => {
         set({
             walletAddress: value
+        })
+    },
+    solanaIcon: null,
+    setSolanaIcon: (value) => {
+        set({
+            solanaIcon: value
         })
     }
 }))

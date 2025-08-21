@@ -32,6 +32,7 @@ import { createCampaign } from "@/validations/create-campaign-validation";
 import { createClient } from '@/config/supabase/supabase-server';
 import { getServerSession } from 'next-auth';
 import { convertStringToSecretKey } from '@/util/convert-string-to-secretKey';
+import { uploadToGithub } from '@/scripts/upload-to-github';
 
 export const POST = async (req: NextRequest) => {
   const session = await getServerSession();
@@ -41,7 +42,21 @@ export const POST = async (req: NextRequest) => {
       data: 'Please login to proceed'
     })
   }
-  const body = await req.json();
+  const formData = await req.formData();
+  
+  const file = formData.get("file") as File | null;
+  if(!file) {
+    return NextResponse.json({})
+  }
+  const arrayBuffer = await file.arrayBuffer();
+  const base64Image = Buffer.from(arrayBuffer).toString("base64");
+  const dataString = formData.get("data") as string;
+
+  if (!dataString) {
+    return NextResponse.json({ success: false, error: "Missing data" });
+  }
+
+  const body = JSON.parse(dataString);
   const validationResult = createCampaign.safeParse(body);
 
   if (!validationResult.success) {
@@ -56,7 +71,6 @@ export const POST = async (req: NextRequest) => {
     decimals, 
     tokenSymbol, 
     totalSupply, 
-    // walletAddress,
     description,
     maxClaimsPerWallet, 
     tokensPerClaim,  
@@ -78,14 +92,35 @@ export const POST = async (req: NextRequest) => {
     const keypair = convertStringToSecretKey(getServerWalletData?.server_key)
     // const userPubkey = new PublicKey(walletAddress);
 
+    const imageUrl = await uploadToGithub({
+      path: `assets/${file.name}${crypto.randomUUID()}`,
+      contentBase64: base64Image,
+      message: `Upload image ${file.name}`,
+    });
+    const metadata = {
+      name,
+      symbol: tokenSymbol,
+      description,
+      image: imageUrl,
+    };
+    const base64Metadata = Buffer.from(
+      JSON.stringify(metadata, null, 2)
+    ).toString("base64");
+
+    const metadataUrl = await uploadToGithub({
+      path: `assets/${tokenSymbol}${crypto.randomUUID()}.json`,
+      contentBase64: base64Metadata,
+      message: `Upload metadata for ${tokenSymbol}${crypto.randomUUID()}`,
+    });
     const metaData: TokenMetadata = {
       updateAuthority: keypair.publicKey,
       mint: mintAuthority.publicKey,
       name: name,
       symbol: tokenSymbol,
-      uri: "https://raw.githubusercontent.com/solana-developers/opos-asset/main/assets/DeveloperPortal/metadata.json",
+      uri: metadataUrl,
       additionalMetadata: [["description", "Only Possible On Solana"]],
     };
+
     
     const metadataExtension = TYPE_SIZE + LENGTH_SIZE;
     const metadataLen = pack(metaData).length;

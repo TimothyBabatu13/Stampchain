@@ -4,11 +4,11 @@ import { ExternalLink, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { useWalletStore } from "@/stores/walletStore"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useEffect, useState } from "react"
 import { WalletName } from "@solana/wallet-adapter-base"
 import { cn } from "@/lib/utils"
+import { useWalletStore } from "@/stores/walletStore"
 
 interface WalletItem {
   name: string
@@ -23,7 +23,6 @@ const WalletModal =({ styles } : {
  
   const connecting = null
   const connected = null
-
   const { wallets: providerWallets, connect, select, connected: providerConnected } = useWallet();
   const [stateWallet, setStateWallet] = useState<Array<WalletItem>>([]);
   useEffect(() =>{
@@ -42,15 +41,14 @@ const WalletModal =({ styles } : {
     
     try {
       select(name as WalletName);
-      
-      await connect()  
+      await connect()
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
     
   }
 
-
+  
   return (
     <Dialog>
         <DialogTrigger asChild >    
@@ -120,9 +118,23 @@ const WalletModal =({ styles } : {
 const ConnectWallet = ({ className } : {
   className?: string
 }) => {
-  const { wallet } = useWalletStore();
   
-  if(wallet) return null
+  const { connected, disconnect } = useWallet();
+  const { setWalletAddress } = useWalletStore()
+
+  const handleDisconnectWallet = async () => {
+    await disconnect();
+    setWalletAddress(null)
+  }
+    if(connected) {
+      return (
+      <Button
+        onClick={handleDisconnectWallet}
+        className={cn(className)}
+      >
+        Disconnect wallet
+      </Button>)
+    }
     return(
         <WalletModal styles={className} />
     )
