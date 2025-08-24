@@ -64,6 +64,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+  // connection.onLogs('all', ()=>{})
   const mintAuthority = Keypair.generate();
   const superbase = createClient();
   

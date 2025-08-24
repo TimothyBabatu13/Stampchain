@@ -11,8 +11,9 @@ const AdminDashboard =  () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
 
       <div className="container mx-auto px-4 py-8">
-        
-        <Stats />
+        <Suspense fallback={<h1>Loading...</h1>}>
+          <Stats />
+        </Suspense>
 
         <Tabs defaultValue="campaigns" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">

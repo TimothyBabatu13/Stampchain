@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { createClient } from "@/config/supabase/supabase-server"
-import { calculateActiveUsersMonthlyChange, calculateMonthlyChange, calculateTokensDistributedChange } from "@/util/stats.utility";
-import { Coins, LucideIcon, QrCode, Target, TrendingDown, TrendingUp, Users, } from "lucide-react"
+import { Coins, LucideIcon, Target, TrendingDown, TrendingUp, } from "lucide-react"
 import { getServerSession } from "next-auth";
 
 interface campaignObject {
@@ -12,11 +11,29 @@ interface campaignObject {
   trend: 'up' | 'down'
 }
 
-interface TotalCampaignType {
-  month: string, 
-  total_campaigns:number, 
-  token_direction: 'increase' | 'decrease', 
-  change?: number
+const calculatePercentageChange = (oldVlaue: number, newValue: number) => {
+  if(oldVlaue === 0 && newValue > 0){
+    return{
+      increase: true,
+      value: 100,
+      totalCampaign: newValue
+    }
+  }
+  if(oldVlaue === 0 && newValue === 0) {
+    return {
+      increase: false,
+      value: 0,
+      totalCampaign: newValue
+    }
+  }
+
+  const percentage = ((newValue - oldVlaue) / oldVlaue) * 100;
+  return {
+    increase: percentage > 0 ? true : false,
+    value: Math.abs(percentage),
+    totalCampaign: newValue
+  }
+
 }
 
 const fetchCampaignData = async () => {
@@ -24,80 +41,48 @@ const fetchCampaignData = async () => {
   const supabase = createClient();
   try {
     const { data, error } = await supabase
-    .rpc('get_campaigns_per_month', {
-      user_email: session?.user?.email
+    .rpc('get_token_mints_monthly_counts', {
+      creator_email: session?.user?.email
     })
+    .select('this_month_count, last_month_count')
+    .maybeSingle()
+    
     if(error) return []
-    const campaignTotalChange = calculateActiveUsersMonthlyChange(data!);
-    //total campaign
-    return campaignTotalChange;
+    const arr = [] as ReturnType<typeof calculatePercentageChange>[];
+    const campaignChange = calculatePercentageChange(data?.last_month_count, data?.this_month_count);
+    arr.push(campaignChange);
+    return arr;
   } catch {
     return []
   }
 }
 
-const fetchTokensDistributed = async () => {
-  const session = await getServerSession()
-  const supabase = createClient();
-  try {
-    const { error, data } = await supabase
-    .rpc('get_monthly_claim_stats', {
-      user_email: session?.user?.email,
-    });
-    
-    if(error){
-      return []
-    }
-    
-    const tokensTotalChange = calculateTokensDistributedChange(data);
-    //active users
-    return tokensTotalChange
-  } catch {
-    return []
-  }
-}
-
-const fetchActiveUsers = async () => {
+const fetchTokensDistributedForEachMonth = async () => {
   const session = await getServerSession();
   const supabase = createClient();
   try {
-    const { error, data } = await supabase
-    .rpc('get_monthly_claim_stats', {
-      user_email: session?.user?.email
+    const { data, error } = await supabase
+    .rpc('get_qr_codes_monthly_counts', {
+      creator_email: session?.user?.email
     })
+    .select('this_month_count, last_month_count')
+    .maybeSingle()
     
-    if(error) return [];
-    
-    const tokensTotalChange = calculateMonthlyChange(data);
-    //total tokens distributed
-    return tokensTotalChange
+    if(error) return []
+    const arr = [] as ReturnType<typeof calculatePercentageChange>[];
+    const campaignChange = calculatePercentageChange(data?.last_month_count, data?.this_month_count);
+    arr.push(campaignChange);
+    return arr;
   } catch {
     return []
   }
+  
 }
-
-// const fetchQrScans = async () => {
-//   const session = await getServerSession();
-//   const supabase = createClient();
-//   const { error, data } = await supabase.rpc('get_monthly_qr_scans_for_users', {
-//     user_emai: session?.user?.email
-//   })
-//   console.log(data)
-//   const qrCount = calculateQrScanChange(data);
-//   return qrCount
-// }
-
-const getSign = (value: 'increase' | 'decrease') => {
-  if(value === 'increase') return '+'
-  return '-'
-}
-
   const fetchAllData = async () => {
-    const result = await Promise.all([fetchCampaignData(), fetchActiveUsers(), fetchTokensDistributed()]);
-    const [ totalCampaigns, tokensDistributed, activeUsers ] = result;
+    const result = await Promise.all([fetchCampaignData(), fetchTokensDistributedForEachMonth()]);
+    const [ totalCampaigns, tokensDistributed ] = result;
     let totalCampaignObject: campaignObject
     let tokensDistributedObject: campaignObject
-    let activeUsersObject: campaignObject
 
     if(!totalCampaigns.length){
       totalCampaignObject = {
@@ -109,14 +94,14 @@ const getSign = (value: 'increase' | 'decrease') => {
       }  
     }
     else{
-      const totalCampaign = totalCampaigns[totalCampaigns.length - 1] as never as TotalCampaignType
-      
+      const totalCampaign = totalCampaigns[0]
+
       totalCampaignObject = {
         title: "Total Campaigns",
-        value: totalCampaign.total_campaigns,
-        change: `${getSign(totalCampaign.token_direction)}${totalCampaign.change ? `${totalCampaign.change}%` : `${totalCampaign.total_campaigns}%`} from this month`,
+        value: totalCampaign.totalCampaign,
+        change: `${totalCampaign.value}% from this month`,
         icon: Target,
-        trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
+        trend: totalCampaign.increase ? "up" : "down",
       }
     }
     
@@ -130,78 +115,19 @@ const getSign = (value: 'increase' | 'decrease') => {
       }    
     }
     else {
-      const tokenDistributed = tokensDistributed[tokensDistributed.length -1];
-      const totalCampaign = totalCampaigns[totalCampaigns.length - 1] as never as {month: string, total_campaigns:number, token_direction: 'increase' | 'decrease', change?: number};
+      const tokenDistributed = tokensDistributed[0];
       
       tokensDistributedObject = {
         title: "Tokens Distributed",
-        value: `${tokenDistributed.total_tokens_distributed} "45.2K"`,
-        change: `${getSign(tokenDistributed.direction as 'increase' | 'decrease')}${tokenDistributed.change}% from last month"`,
+        value: `${tokenDistributed.value}`,
+        change: `${tokenDistributed.value}% from last month"`,
         icon: Coins,
-        trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
+        trend: tokenDistributed.increase ? "up" : "down",
       }    
     }
 
-    if(!activeUsers.length){
-      activeUsersObject = {
-        title: "Active Users",
-        value: `0`,
-        change: `0`,
-        icon: Users,
-        trend: "down",
-      }
-    }
+    const stats = [totalCampaignObject, tokensDistributedObject]
     
-    else {
-      const activeUser = activeUsers[activeUsers.length -1];
-      const totalCampaign = totalCampaigns[totalCampaigns.length - 1] as never as {month: string, total_campaigns:number, token_direction: 'increase' | 'decrease', change?: number};
-      
-      activeUsersObject = {
-        title: "Active Users",
-        value: `${activeUser.active_users}`,
-        change: `${getSign(activeUser.direction as 'increase' | 'decrease')}${activeUser.change}% from last month`,
-        icon: Users,
-        trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
-      }  
-    }
-    const stats = [totalCampaignObject, tokensDistributedObject, activeUsersObject, {
-      title: "QR Scans",
-      value: "8,921",
-      change: "+23% from last month",
-      icon: QrCode,
-      trend: "up",
-    },]
-    
-    // const emptyStats = [
-    //   {
-    //     title: "Total Campaigns",
-    //     value: '',
-    //     change: ``,
-    //     icon: Target,
-    //     trend:  "up",
-    //   },
-    //   {
-    //     title: "Tokens Distributed",
-    //     value: ``,
-    //     change: ``,
-    //     icon: Coins,
-    //     trend: "down",
-    //   },
-    //   {
-    //     title: "Active Users",
-    //     value: ``,
-    //     change: ``,
-    //     icon: Users,
-    //     trend: "up",
-    //   },
-    //   {
-    //     title: "QR Scans",
-    //     value: "8,921",
-    //     change: "+23% from last month",
-    //     icon: QrCode,
-    //     trend: "up",
-    //   },
-    // ]
     return stats
 }
 
@@ -241,35 +167,3 @@ const Stats = async () => {
 }
 
 export default Stats
-
-
-// const stats = [
-      // {
-      //   title: "Total Campaigns",
-      //   value: totalCampaign.total_campaigns,
-      //   change: `${getSign(totalCampaign.token_direction)}${totalCampaign.change ? `${totalCampaign.change}%` : `${totalCampaign.total_campaigns}%`} from this month`,
-      //   icon: Target,
-      //   trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
-      // },
-    //   {
-    //     title: "Tokens Distributed",
-    //     value: `${tokenDistributed.total_tokens_distributed} "45.2K"`,
-    //     change: `${getSign(tokenDistributed.direction as 'increase' | 'decrease')}${tokenDistributed.change}% from last month"`,
-    //     icon: Coins,
-    //     trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
-    //   },
-    //   {
-    //     title: "Active Users",
-    //     value: `${activeUser.active_users}`,
-    //     change: `${getSign(activeUser.direction as 'increase' | 'decrease')}${activeUser.change}% from last month`,
-    //     icon: Users,
-    //     trend: getSign(totalCampaign.token_direction) === '+' ? "up" : "down",
-    //   },
-    //   {
-    //     title: "QR Scans",
-    //     value: "8,921",
-    //     change: "+23% from last month",
-    //     icon: QrCode,
-    //     trend: "up",
-    //   },
-    // ]
