@@ -67,8 +67,9 @@ const fetchTokensDistributedForEachMonth = async () => {
     })
     .select('this_month_count, last_month_count')
     .maybeSingle()
-    
+
     if(error) return []
+
     const arr = [] as ReturnType<typeof calculatePercentageChange>[];
     const campaignChange = calculatePercentageChange(data?.last_month_count, data?.this_month_count);
     arr.push(campaignChange);
@@ -167,3 +168,31 @@ const Stats = async () => {
 }
 
 export default Stats
+
+
+// drop function if exists public.get_qr_codes_monthly_counts(creator_email text);
+
+// create or replace function public.get_qr_codes_monthly_counts(creator_email text)
+// returns table (
+//   this_month_count bigint,
+//   last_month_count bigint
+// )
+// language plpgsql
+// stable
+// as $$
+// begin
+//   return query
+//     select
+//       count(*) filter (
+//         where qr.used = true
+//         and date_trunc('month', qr.claimed_at) = date_trunc('month', now())
+//       ) as this_month_count,
+//       count(*) filter (
+//         where qr.used = true
+//         and date_trunc('month', qr.claimed_at) = date_trunc('month', now() - interval '1 month')
+//       ) as last_month_count
+//     from qr_codes qr
+//     join token_mints tm on qr.campaign_id = tm.id
+//     where tm.creator_email = get_qr_codes_monthly_counts.creator_email;
+// end;
+// $$;
