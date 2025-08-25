@@ -1,5 +1,6 @@
 import { CampaignDetailPage } from "./chart"
 import CampaignDetails from "./components/campaign-details"
+import { TokenDetailsCard } from "./components/token-details-card"
 
 interface pageProps {
     params: Promise<string>,
@@ -13,7 +14,8 @@ const page = async ( { params }: pageProps ) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <CampaignDetails id={id}/>
-        <CampaignDetailPage params={{ id }} />
+      <TokenDetailsCard id={id} />
+      <CampaignDetailPage params={{ id }} />
     </div>
   )
 }
