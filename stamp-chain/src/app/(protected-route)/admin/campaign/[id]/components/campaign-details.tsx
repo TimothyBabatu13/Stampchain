@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/config/supabase/supabase-server"
 import { getServerSession } from "next-auth";
-import GenerateQRCode from "./client-components";
 import { Suspense } from "react";
+import { GenerateQRCode } from "./client-components";
 
 const fetchCampaignData = async (id: string) => {
     const session = await getServerSession();

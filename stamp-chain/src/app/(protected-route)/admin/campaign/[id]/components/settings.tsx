@@ -1,11 +1,10 @@
 'use client';
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle, Copy, Edit, Globe, Settings as LucideSettings, Shield } from "lucide-react";
+import { CheckCircle, Copy, Edit, Globe, Settings as LucideSettings, Shield } from "lucide-react";
 import { useState } from "react";
 
 const getCampaignData = (id: string) => {
@@ -198,28 +197,6 @@ const Settings = ({ id } : {
               </Card>
             </div>
 
-            {/* Danger Zone */}
-            <Card className="border-0 shadow-lg border-red-200">
-              <CardHeader>
-                <CardTitle className="text-red-600">Danger Zone</CardTitle>
-                <CardDescription>Irreversible actions for this campaign</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>These actions cannot be undone. Please proceed with caution.</AlertDescription>
-                </Alert>
-                <div className="flex gap-3 mt-4">
-                  <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent">
-                    Pause Campaign
-                  </Button>
-                  <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent">
-                    End Campaign
-                  </Button>
-                  <Button variant="destructive">Delete Campaign</Button>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
   )
 }

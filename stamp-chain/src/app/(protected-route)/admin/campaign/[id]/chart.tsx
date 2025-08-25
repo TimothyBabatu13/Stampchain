@@ -2,8 +2,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
 import Overview from "./components/overview";
-import Settings from "./components/settings";
-
 
 
 export const CampaignDetailPage = ({ params }: { params: { id: string } }) => {
@@ -13,13 +11,13 @@ export const CampaignDetailPage = ({ params }: { params: { id: string } }) => {
     <div className="min-h-screen">
       <div className="">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:w-[500px]">
+          <TabsList className="grid w-full grid-cols-1 lg:w-[500px]">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            {/* <TabsTrigger value="settings">Settings</TabsTrigger> */}
           </TabsList>
 
           <Overview id={params.id}/>
-          <Settings id={params.id} />
+          {/* <Settings id={params.id} /> */}
         </Tabs>
       </div>
     </div>
