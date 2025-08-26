@@ -16,7 +16,7 @@ const AdminDashboard =  () => {
         </Suspense>
 
         <Tabs defaultValue="campaigns" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>

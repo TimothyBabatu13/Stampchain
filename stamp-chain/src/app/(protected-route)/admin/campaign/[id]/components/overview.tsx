@@ -94,7 +94,7 @@ const Overview = ({id} : {
                     </CardTitle>
                     <CardDescription>Token claims over the last 30 days</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="">
                     <AreaGraph id={id}/>
                   </CardContent>
                 </Card>
