@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, LayoutDashboardIcon, QrCode } from "lucide-react"
+import { ArrowRight, LayoutDashboardIcon, QrCode, Zap } from "lucide-react"
 import Link from "next/link"
 import { Business, Features } from "@/components/Features"
 import { CreateCampaignLink } from "@/components/server-components/Links"
 import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const LandingPage = () => {
   return (
@@ -20,17 +21,24 @@ const LandingPage = () => {
             reward your community with blockchain-powered loyalty tokens.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href={"/admin"}
-              className="sm:hidden"
+            <Suspense
+              fallback={<Skeleton className="h-10 w-[158px] bg-black" />}
             >
-              <Button size="lg" variant="outline">
-                <LayoutDashboardIcon />
-                Admin
-              </Button>
-            </Link>
-            <Suspense fallback={<h1>Loading...</h1>}>
-              <CreateCampaignLink />
+              <CreateCampaignLink 
+                icon={LayoutDashboardIcon} 
+                link='/admin/campaign/new' 
+                text="Admin"
+                className="sm:hidden"
+              />
+            </Suspense>
+            <Suspense 
+              fallback={<Skeleton className="h-10 w-[158px] bg-black" />}
+            >
+              <CreateCampaignLink 
+                icon={Zap} 
+                link='/admin/campaign/new'
+                text="Create Campaign" 
+              />
             </Suspense>
             <Link href={"/claim"}>
               <Button size="lg" variant="outline">
