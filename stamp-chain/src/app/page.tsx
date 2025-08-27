@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, QrCode } from "lucide-react"
+import { ArrowRight, LayoutDashboardIcon, QrCode } from "lucide-react"
 import Link from "next/link"
 import { Business, Features } from "@/components/Features"
 import { CreateCampaignLink } from "@/components/server-components/Links"
@@ -20,6 +20,15 @@ const LandingPage = () => {
             reward your community with blockchain-powered loyalty tokens.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href={"/admin"}
+              className="sm:hidden"
+            >
+              <Button size="lg" variant="outline">
+                <LayoutDashboardIcon />
+                Admin
+              </Button>
+            </Link>
             <Suspense fallback={<h1>Loading...</h1>}>
               <CreateCampaignLink />
             </Suspense>

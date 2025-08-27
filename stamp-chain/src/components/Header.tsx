@@ -173,8 +173,13 @@ const Header = () => {
           {
             status === 'authenticated' ? (
               <div className="flex items-center gap-6">
-                <Link href="/admin">
-                  <Button variant="outline" className="hidden sm:inline-flex">
+                <Link 
+                  href="/admin"
+                  className="hidden sm:inline-flex"
+                >
+                  <Button 
+                    variant="outline" 
+                  >
                     Admin Panel
                   </Button>
                 </Link>
