@@ -26,7 +26,7 @@ const LandingPage = () => {
             >
               <CreateCampaignLink 
                 icon={LayoutDashboardIcon} 
-                link='/admin/campaign/new' 
+                link='/admin' 
                 text="Admin"
                 className="sm:hidden"
               />
