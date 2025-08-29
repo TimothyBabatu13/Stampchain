@@ -4,14 +4,25 @@ import ViewAnalytics from "./components/view-analytics"
 import ViewSettings from "./components/view-settings"
 import Stats from "./components/stats"
 import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 import ViewCampaignSkeleton from "./components/view-campaign-skeleton"
+
+
+const StatsLoading =  () => {
+  return (
+    <div className="flex flex-col gap-3 mb-8">
+      <Skeleton className="h-[148px] w-full bg-black" />
+      <Skeleton className="h-[148px] w-full bg-black" />
+    </div>
+  )
+}
 
 const AdminDashboard =  () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
 
       <div className="container mx-auto px-4 py-8">
-        <Suspense fallback={<h1>Loading...</h1>}>
+        <Suspense fallback={<StatsLoading />}>
           <Stats />
         </Suspense>
 
